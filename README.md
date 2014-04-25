@@ -1,2 +1,4 @@
-selenium_idea_plugin
+Author : Sidelnikov Mikhail
+email : sidelnikovmike@gmail.com
+
 ====================
