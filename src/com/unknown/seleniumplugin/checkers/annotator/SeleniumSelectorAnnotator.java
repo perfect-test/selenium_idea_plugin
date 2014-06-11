@@ -26,21 +26,27 @@ public class SeleniumSelectorAnnotator implements Annotator {
             if (referenceElement != null) {
                 if (referenceElement.getQualifiedName().equals(SELENIUM_FIND_BY_ANNOTATION_CLASS_NAME)) {
                     PsiNameValuePair[] nameValuePairs = annotation.getParameterList().getAttributes();
-                    if(nameValuePairs.length > 0) {
-                        for(PsiNameValuePair nameValuePair : nameValuePairs) {
-                            if(isCssParameter(nameValuePair)){
-                                String value = getNameValuePairStringValue(nameValuePair);
-                                System.out.println("ЗНачение : '" + getNameValuePairStringValue(nameValuePair) + "'");
-                                if(value != null ) {
-                                    TextRange range = new TextRange(element.getTextRange().getStartOffset(),
-                                            element.getTextRange().getEndOffset());
-                                    try {
-                                        CheckResult checkResult = selectorChecker.checkSelectorValid(value);
-                                        if(!checkResult.isResultSuccess()) {
-                                            holder.createErrorAnnotation(range, checkResult.getMessage());
+                    if (nameValuePairs.length > 0) {
+                        for (PsiNameValuePair nameValuePair : nameValuePairs) {
+                            if (isCssParameter(nameValuePair)) {
+                                PsiAnnotationMemberValue nameValuePairValue = nameValuePair.getValue();
+                                if(nameValuePairValue != null) {
+                                    String value = getNameValuePairStringValue(nameValuePairValue);
+                                    System.out.println("Значение : '" + value + "'");
+                                    if (value != null) {
+                                        try {
+                                            CheckResult checkResult = selectorChecker.checkSelectorValid(value);
+                                            if (!checkResult.isResultSuccess()) {
+                                                int startOffset = nameValuePairValue.getTextRange().getStartOffset() + checkResult.getPosition();
+                                                int endOffset = startOffset + 2;
+                                                TextRange range = new TextRange(startOffset, endOffset);
+                                                holder.createErrorAnnotation(range, checkResult.getMessage());
+                                            }
+                                        } catch (NotParsebleSelectorException e) {
+                                            TextRange range = new TextRange(nameValuePairValue.getTextRange().getStartOffset(),
+                                                    nameValuePairValue.getTextRange().getEndOffset());
+                                            holder.createWarningAnnotation(range, "Not parseble selector");
                                         }
-                                    } catch (NotParsebleSelectorException e) {
-                                        holder.createWarningAnnotation(range, "Not parseble selector");
                                     }
                                 }
                             }
@@ -53,16 +59,13 @@ public class SeleniumSelectorAnnotator implements Annotator {
 
     }
 
-    private boolean isCssParameter(PsiNameValuePair nameValuePair){
+    private boolean isCssParameter(PsiNameValuePair nameValuePair) {
         String name = nameValuePair.getName();
         return name != null && name.equals("css");
     }
 
-    private String getNameValuePairStringValue(PsiNameValuePair nameValuePair) {
-        PsiAnnotationMemberValue value = nameValuePair.getValue();
-        if(value != null) {
-            return value.getText().replaceAll("\"","");
-        }
-        return null;
+    private String getNameValuePairStringValue(PsiAnnotationMemberValue value) {
+        return value.getText().replaceAll("\"", "");
+
     }
 }

@@ -49,12 +49,12 @@ public class CssSelectorChecker implements ISelectorChecker {
 
         Position position = new Position();
         if (selector.isEmpty()) {
-            return getCheckResultWithError("Selector can't be empty");
+            return getCheckResultWithError("Selector can't be empty", position);
         }
         try {
             skipWhitespaces(selector, position);
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Selector can't be empty");
+            return getCheckResultWithError("Selector can't be empty", position);
         }
         char next = getCurrentChar(selector, position);
         if (isIdStartCharacter(next)) {
@@ -68,7 +68,7 @@ public class CssSelectorChecker implements ISelectorChecker {
         } else if (isOpeningElement(next)) {
             return parseAttributes(selector, position);
         } else {
-            return getCheckResultWithError("Selector starts not with tag name or '.' or '#' or '[' or '*'");
+            return getCheckResultWithError("Selector starts not with tag name or '.' or '#' or '[' or '*'", position);
         }
 
 
@@ -84,7 +84,7 @@ public class CssSelectorChecker implements ISelectorChecker {
             } else if (isTagNameStartCharacter(current)) {
                 return parseStartTag(selector, position);
             } else if (isAnyElementDigit(current)) {
-                return getCheckResultWithError("There can't be * after *");
+                return getCheckResultWithError("There can't be * after *", position);
             } else if (isOpeningElement(current)) {
                 return parseAttributes(selector, position);
             } else if (isFunctionStartElement(current)) {
@@ -101,13 +101,13 @@ public class CssSelectorChecker implements ISelectorChecker {
         try {
             getNextChar(selector, position);
         } catch (EndOfSelector endOfSelector) {
-            return getCheckResultWithError("Function name can't contains only ':' without name of a function");
+            return getCheckResultWithError("Function name can't contains only ':' without name of a function", position);
         }
         String functionName = parseFunctionName(selector, position);
         if (position.value() == selector.length()) {
             if (functionName.equals(NTH_CHILD_FUNCTION_NAME)) {
                 getCheckResultWithError("There must be an a child index in braces after " + NTH_CHILD_FUNCTION_NAME +
-                        " function name");
+                        " function name", position);
             } else {
                 return getSuccessCheckResult();
             }
@@ -115,30 +115,30 @@ public class CssSelectorChecker implements ISelectorChecker {
         char current = getCurrentChar(selector, position);
         if (functionName.equals(NTH_CHILD_FUNCTION_NAME)) {
             if (!isOpeningBracesElement(current)) {
-                return getCheckResultWithError("There must be an '(' after " + NTH_CHILD_FUNCTION_NAME + " function");
+                return getCheckResultWithError("There must be an '(' after " + NTH_CHILD_FUNCTION_NAME + " function", position);
             } else {
                 try {
                    current = getNextChar(selector, position);
                 } catch (EndOfSelector endOfSelector) {
                     return getCheckResultWithError("Selector can't ends with '" + NTH_CHILD_FUNCTION_NAME +
-                            "' function name without braces");
+                            "' function name without braces", position);
                 }
 
                 if(!isChildValuePart(current)) {
-                    return getCheckResultWithError("There must be an a digit after '(' in " + NTH_CHILD_FUNCTION_NAME + " function");
+                    return getCheckResultWithError("There must be an a digit after '(' in " + NTH_CHILD_FUNCTION_NAME + " function", position);
                 }
                 String indexValue = parseChildIndexValue(selector, position);
                 if(indexValue.isEmpty()) {
-                    return getCheckResultWithError("Index of child for function " + NTH_CHILD_FUNCTION_NAME + " can't be empty");
+                    return getCheckResultWithError("Index of child for function " + NTH_CHILD_FUNCTION_NAME + " can't be empty", position);
                 }
                 if (position.value() == selector.length()) {
                     return getCheckResultWithError("Selector can't ends with " + NTH_CHILD_FUNCTION_NAME +
-                            " child index without closing braces");
+                            " child index without closing braces", position);
                 }
                 current = getCurrentChar(selector, position);
                 if (!isClosingBracesElement(current)) {
                     return getCheckResultWithError("There must be closing braces after " +
-                            NTH_CHILD_FUNCTION_NAME + " function index value, no spaces and another digits");
+                            NTH_CHILD_FUNCTION_NAME + " function index value, no spaces and another digits", position);
                 }
                 try {
                     current = getNextChar(selector, position);
@@ -148,7 +148,7 @@ public class CssSelectorChecker implements ISelectorChecker {
             }
         }
         if (!isWhitespace(current)) {
-            return getCheckResultWithError("There must be a space after function before another element");
+            return getCheckResultWithError("There must be a space after function before another element", position);
         }
         try {
             skipWhitespaces(selector, position);
@@ -182,21 +182,21 @@ public class CssSelectorChecker implements ISelectorChecker {
         try {
             getNextChar(selector, position);
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Id can't contains only '#'. There should be a tag name");
+            return getCheckResultWithError("Id can't contains only '#'. There should be a tag name", position);
         }
         char current = getCurrentChar(selector, position);
         if (isWhitespace(current)) {
-            return getCheckResultWithError("There is a space after '#'");
+            return getCheckResultWithError("There is a space after '#'", position);
         } else if (isClassStartCharacter(current)) {
-            return getCheckResultWithError("There is a . after '#'");
+            return getCheckResultWithError("There is a . after '#'", position);
         } else if (isOpeningElement(current)) {
-            return getCheckResultWithError("There is a [ after '#'");
+            return getCheckResultWithError("There is a [ after '#'", position);
         } else if (isIdStartCharacter(current)) {
-            return getCheckResultWithError("There is a # after '#'");
+            return getCheckResultWithError("There is a # after '#'", position);
         } else if (isFunctionStartElement(current)) {
-            return getCheckResultWithError("There is a : after '#'");
+            return getCheckResultWithError("There is a : after '#'", position);
         } else if (isAnyElementDigit(current)) {
-            return getCheckResultWithError("There is a * after '#'");
+            return getCheckResultWithError("There is a * after '#'", position);
         }
         parseSelectorStringPart(selector, position);
         if (position.value() == selector.length()) {
@@ -210,7 +210,7 @@ public class CssSelectorChecker implements ISelectorChecker {
         } else if (isOpeningElement(next)) {
             return parseAttributes(selector, position);
         } else if (isIdStartCharacter(next)) {
-            return getCheckResultWithError("There can't be an id after id without spaces");
+            return getCheckResultWithError("There can't be an id after id without spaces", position);
         } else if (isWhitespace(next)) {
             try {
                 skipWhitespaces(selector, position);
@@ -231,19 +231,19 @@ public class CssSelectorChecker implements ISelectorChecker {
         try {
             getNextChar(selector, position);
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Class can't contains only '.'. There should be a class name");
+            return getCheckResultWithError("Class can't contains only '.'. There should be a class name", position);
         }
         char current = getCurrentChar(selector, position);
         if (isWhitespace(current)) {
-            return getCheckResultWithError("There is a space after '.'");
+            return getCheckResultWithError("There is a space after '.'", position);
         } else if (isClassStartCharacter(current)) {
-            return getCheckResultWithError("There is a . after '.'");
+            return getCheckResultWithError("There is a . after '.'", position);
         } else if (isOpeningElement(current)) {
-            return getCheckResultWithError("There is a [ after '.'");
+            return getCheckResultWithError("There is a [ after '.'", position);
         } else if (isIdStartCharacter(current)) {
-            return getCheckResultWithError("There is a # after '.'");
+            return getCheckResultWithError("There is a # after '.'", position);
         } else if (isFunctionStartElement(current)) {
-            return getCheckResultWithError("There is a : after '.'");
+            return getCheckResultWithError("There is a : after '.'", position);
         }
         parseClassValue(selector, position);
         if (position.value() == selector.length()) {
@@ -303,20 +303,20 @@ public class CssSelectorChecker implements ISelectorChecker {
                 skipWhitespaces(selector, position);
             }
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Selector can't contains only '['. There should be an attribute name");
+            return getCheckResultWithError("Selector can't contains only '['. There should be an attribute name", position);
         }
 
         current = getCurrentChar(selector, position);
         if (isClassStartCharacter(current)) {
-            return getCheckResultWithError("There is a . after '['");
+            return getCheckResultWithError("There is a . after '['", position);
         } else if (isOpeningElement(current)) {
-            return getCheckResultWithError("There is a [ after '['");
+            return getCheckResultWithError("There is a [ after '['", position);
         } else if (isIdStartCharacter(current)) {
-            return getCheckResultWithError("There is a # after '['");
+            return getCheckResultWithError("There is a # after '['", position);
         }
         String attributeName = parseSelectorStringPart(selector, position);
         if (position.value() == selector.length()) {
-            return getCheckResultWithError("Selector can't ends with attribute name. It should contain value and ']' symbol after.");
+            return getCheckResultWithError("Selector can't ends with attribute name. It should contain value and ']' symbol after.", position);
         }
         current = getCurrentChar(selector, position);
         try {
@@ -324,21 +324,21 @@ public class CssSelectorChecker implements ISelectorChecker {
                 skipWhitespaces(selector, position);
             }
         } catch (EndOfSelector endOfSelector) {
-            return getCheckResultWithError("Selector can't ends with attribute name. It should contain value and ']' symbol after.");
+            return getCheckResultWithError("Selector can't ends with attribute name. It should contain value and ']' symbol after.", position);
         }
         current = getCurrentChar(selector, position);
         if (!isAttributeValueStrictlyEqualitySymbol(current) && !isAttributeValueNotStrictlyEqualitySymbol(current)) {
-            return getCheckResultWithError("Unexpected symbol after attribute name. There should be one of these after name :'=', '*', '^', '$'");
+            return getCheckResultWithError("Unexpected symbol after attribute name. There should be one of these after name :'=', '*', '^', '$'", position);
         }
         if (isAttributeValueNotStrictlyEqualitySymbol(current)) {
             try {
                 current = getNextChar(selector, position);
             } catch (EndOfSelector endOfSelector) {
-                return getCheckResultWithError("Selector can't ends with '*', '^' or '$'");
+                return getCheckResultWithError("Selector can't ends with '*', '^' or '$'", position);
             }
         }
         if (!isAttributeValueStrictlyEqualitySymbol(current)) {
-            return getCheckResultWithError("There must be an '=' after symbols '*', '^' or '$'");
+            return getCheckResultWithError("There must be an '=' after symbols '*', '^' or '$'", position);
         }
 
         try {
@@ -347,28 +347,28 @@ public class CssSelectorChecker implements ISelectorChecker {
                 skipWhitespaces(selector, position);
             }
         } catch (EndOfSelector endOfSelector) {
-            return getCheckResultWithError("Selector can't ends with '=' after attribute name. There must be a value");
+            return getCheckResultWithError("Selector can't ends with '=' after attribute name. There must be a value", position);
         }
         current = getCurrentChar(selector, position);
         if (!isSingleQuotSymbol(current)) {
             if (!attributeName.equals(ATTRIBUTE_VALUE_NAME)) {
-                return getCheckResultWithError("There must be a single quot after '=' if attribute not a '" + ATTRIBUTE_VALUE_NAME + "'");
+                return getCheckResultWithError("There must be a single quot after '=' if attribute not a '" + ATTRIBUTE_VALUE_NAME + "'", position);
             }
         } else {
             try {
                 getNextChar(selector, position);
             } catch (EndOfSelector endOfSelector) {
-                return getCheckResultWithError("Selector can't ends with ' symbol after '='. There must be an attribute value");
+                return getCheckResultWithError("Selector can't ends with ' symbol after '='. There must be an attribute value", position);
             }
         }
         parseSelectorAttributeValue(selector, position);
         if (position.value() == selector.length()) {
-            return getCheckResultWithError("Selector can't ends attribute value. It should contain  close ']'(if attribute is '" + ATTRIBUTE_VALUE_NAME + "') or ' '] ' symbol after.");
+            return getCheckResultWithError("Selector can't ends attribute value. It should contain  close ']'(if attribute is '" + ATTRIBUTE_VALUE_NAME + "') or ' '] ' symbol after.", position);
         }
         current = getCurrentChar(selector, position);
         if (!isSingleQuotSymbol(current)) {
             if (!attributeName.equals(ATTRIBUTE_VALUE_NAME)) {
-                return getCheckResultWithError("There must be a single quot after attribute value if attribute not a '" + ATTRIBUTE_VALUE_NAME + "'");
+                return getCheckResultWithError("There must be a single quot after attribute value if attribute not a '" + ATTRIBUTE_VALUE_NAME + "'", position);
             }
 
         } else {
@@ -378,12 +378,12 @@ public class CssSelectorChecker implements ISelectorChecker {
                     skipWhitespaces(selector, position);
                 }
             } catch (EndOfSelector endOfSelector) {
-                return getCheckResultWithError("Selector can't ends with ' symbol after attribute value. It should have ']' symbol after");
+                return getCheckResultWithError("Selector can't ends with ' symbol after attribute value. It should have ']' symbol after", position);
             }
         }
         current = getCurrentChar(selector, position);
         if (!isClosingElement(current)) {
-            return getCheckResultWithError("There must be an a ']' after attribute value");
+            return getCheckResultWithError("There must be an a ']' after attribute value", position);
         }
         boolean hasWhiteSpace = false;
         try {
@@ -409,16 +409,16 @@ public class CssSelectorChecker implements ISelectorChecker {
             } else if (isOpeningElement(current)) {
                 return parseAttributes(selector, position);
             } else if(isFunctionStartElement(current)) {
-                return getCheckResultWithError("There can't be : after whitespace. ");
+                return getCheckResultWithError("There can't be : after whitespace. ", position);
             }
         } else {
             if (isClassStartCharacter(current)) {
-                return getCheckResultWithError("There can't be . as next symbol after ']'");
+                return getCheckResultWithError("There can't be . as next symbol after ']'", position);
             } else if (isIdStartCharacter(current)) {
-                return getCheckResultWithError("There can't be # as next symbol after ']'");
+                return getCheckResultWithError("There can't be # as next symbol after ']'", position);
             }
             else if (isTagNameStartCharacter(current)) {
-                return getCheckResultWithError("There can't be tag name after symbol after ']' without space");
+                return getCheckResultWithError("There can't be tag name after symbol after ']' without space", position);
             } else if(isFunctionStartElement(current)) {
                 return parseFunction(selector, position);
             }
@@ -477,8 +477,10 @@ public class CssSelectorChecker implements ISelectorChecker {
     }
 
 
-    private CheckResult getCheckResultWithError(String errorMessage) {
-        return new CheckResult(false, errorMessage);
+    private CheckResult getCheckResultWithError(String errorMessage, Position position) {
+        CheckResult checkResult = new CheckResult(false, errorMessage);
+        checkResult.setPosition(position.value());
+        return checkResult;
     }
 
     private char getCurrentChar(String selector, Position position) {

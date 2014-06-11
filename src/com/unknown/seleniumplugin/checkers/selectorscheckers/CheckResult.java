@@ -9,6 +9,8 @@ package com.unknown.seleniumplugin.checkers.selectorscheckers;
 public class CheckResult {
     private boolean isResultSuccess;
     private String message;
+    private int position;
+
 
     public CheckResult(boolean isResultSuccess, String message) {
         this.isResultSuccess = isResultSuccess;
@@ -29,5 +31,13 @@ public class CheckResult {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }
