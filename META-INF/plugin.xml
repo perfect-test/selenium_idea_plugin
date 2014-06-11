@@ -1,0 +1,58 @@
+<idea-plugin version="2">
+  <id>SeleniumPlugin</id>
+  <name>Selenium plugin</name>
+  <version>1.0</version>
+  <vendor email="sidelnikovmike@gmail.com" url="http://www.yourcompany.com">Perfect Test</vendor>
+
+  <description><![CDATA[
+      Selenium plugin
+    ]]></description>
+
+  <change-notes><![CDATA[
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>
+    ]]>
+  </change-notes>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+  <idea-version since-build="131"/>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <extensions defaultExtensionNs="com.intellij">
+      <annotator language="JAVA" implementationClass="com.unknown.seleniumplugin.checkers.annotator.SeleniumSelectorAnnotator"/>
+      <!-- Add your extensions here -->
+  </extensions>
+
+  <application-components>
+    <!-- Add your application components here -->
+  </application-components>
+
+  <project-components>
+
+    <!-- Add your project components here -->
+  </project-components>
+
+  <actions>
+    <!-- Add your actions here -->
+      <action id="CreateSeleniumAnnotation" class="com.unknown.seleniumplugin.CreateSeleniumAnnotation"
+              text="Create Selenium Annotation" description="Creates annotation for field with @FindBy">
+          <add-to-group group-id="EditorActions" anchor="last"/>
+          <keyboard-shortcut keymap="$default" first-keystroke="meta S"/>
+      </action>
+      <group id="MyPlugin.SampleMenu" text="_Sample Menu" description="Sample menu">
+          <add-to-group group-id="MainMenu" anchor="last"  />
+          <action id="Myplugin.Textboxes" class="com.unknown.seleniumplugin.TextBoxes" text="Text _Boxes" description="A test menu item" />
+          <!--<action id="Myplugin.Dialogs" class="Mypackage.MyShowDialog" text="Show _Dialog" description="A test menu item" />-->
+      </group>
+      <action id="generateWebElement" class="com.unknown.seleniumplugin.generatefield.backend.GenerateWebElement" text="Web Element Generation"
+              description="Generates the Selenium Web element field">
+          <add-to-group group-id="GenerateGroup" anchor="last"/>
+      </action>
+  </actions>
+
+</idea-plugin>
