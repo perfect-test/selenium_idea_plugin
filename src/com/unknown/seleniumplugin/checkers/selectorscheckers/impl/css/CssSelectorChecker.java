@@ -361,7 +361,10 @@ public class CssSelectorChecker implements ISelectorChecker {
                 return getCheckResultWithError("Selector can't ends with ' symbol after '='. There must be an attribute value", position);
             }
         }
-        parseSelectorAttributeValue(selector, position);
+        String attributeValue = parseSelectorAttributeValue(selector, position);
+        if(attributeValue.isEmpty()) {
+            return getCheckResultWithError("Attribute value can't be empty", position);
+        }
         if (position.value() == selector.length()) {
             return getCheckResultWithError("Selector can't ends attribute value. It should contain  close ']'(if attribute is '" + ATTRIBUTE_VALUE_NAME + "') or ' '] ' symbol after.", position);
         }

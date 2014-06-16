@@ -8,6 +8,7 @@ import com.unknown.seleniumplugin.checkers.selectorscheckers.CheckResult;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.ISelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.NotParsebleSelectorException;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.css.CssSelectorChecker;
+import com.unknown.seleniumplugin.utils.AnnotationChecker;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 public class SeleniumSelectorAnnotator implements Annotator {
 
     private ISelectorChecker selectorChecker = new CssSelectorChecker();
-    private static final String SELENIUM_FIND_BY_ANNOTATION_CLASS_NAME = "org.openqa.selenium.support.FindBy";
 
     @Override()
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
@@ -24,7 +24,7 @@ public class SeleniumSelectorAnnotator implements Annotator {
             PsiAnnotation annotation = (PsiAnnotation) element;
             PsiJavaCodeReferenceElement referenceElement = annotation.getNameReferenceElement();
             if (referenceElement != null) {
-                if (referenceElement.getQualifiedName().equals(SELENIUM_FIND_BY_ANNOTATION_CLASS_NAME)) {
+                if (AnnotationChecker.isFindByAnnotation(referenceElement.getQualifiedName())) {
                     PsiNameValuePair[] nameValuePairs = annotation.getParameterList().getAttributes();
                     if (nameValuePairs.length > 0) {
                         for (PsiNameValuePair nameValuePair : nameValuePairs) {
@@ -66,6 +66,5 @@ public class SeleniumSelectorAnnotator implements Annotator {
 
     private String getNameValuePairStringValue(PsiAnnotationMemberValue value) {
         return value.getText().replaceAll("\"", "");
-
     }
 }
