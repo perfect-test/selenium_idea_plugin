@@ -8,15 +8,17 @@ import com.unknown.seleniumplugin.checkers.selectorscheckers.CheckResult;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.ISelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.NotParsebleSelectorException;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.css.CssSelectorChecker;
+import com.unknown.seleniumplugin.domain.SelectorValue;
 import com.unknown.seleniumplugin.utils.AnnotationChecker;
+import com.unknown.seleniumplugin.utils.AnnotationsUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by mike-sid on 30.04.14.
  */
 public class SeleniumSelectorAnnotator implements Annotator {
-
-    private ISelectorChecker selectorChecker = new CssSelectorChecker();
+    private static final ISelectorChecker cssSelectorChecker = new CssSelectorChecker();
+    private ISelectorChecker selectorChecker;
 
     @Override()
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
@@ -28,10 +30,11 @@ public class SeleniumSelectorAnnotator implements Annotator {
                     PsiNameValuePair[] nameValuePairs = annotation.getParameterList().getAttributes();
                     if (nameValuePairs.length > 0) {
                         for (PsiNameValuePair nameValuePair : nameValuePairs) {
-                            if (isCssParameter(nameValuePair)) {
+                            setSelectorChecker(nameValuePair);
+                            if(selectorChecker != null) {
                                 PsiAnnotationMemberValue nameValuePairValue = nameValuePair.getValue();
-                                if(nameValuePairValue != null) {
-                                    String value = getNameValuePairStringValue(nameValuePairValue);
+                                if (nameValuePairValue != null) {
+                                    String value = AnnotationsUtils.getClearAnnotationParameterValue(nameValuePairValue);
                                     System.out.println("Значение : '" + value + "'");
                                     if (value != null) {
                                         try {
@@ -59,12 +62,22 @@ public class SeleniumSelectorAnnotator implements Annotator {
 
     }
 
-    private boolean isCssParameter(PsiNameValuePair nameValuePair) {
+    private void setSelectorChecker(PsiNameValuePair nameValuePair) {
         String name = nameValuePair.getName();
-        return name != null && name.equals("css");
+        if (name != null) {
+            SelectorValue selectorValue = SelectorValue.getByText(name);
+            if (selectorValue != null) {
+                switch (selectorValue) {
+                    case CSS:
+                        selectorChecker = cssSelectorChecker;
+                        break;
+                    default:
+                        //do nothing
+                        break;
+                }
+            }
+        }
+
     }
 
-    private String getNameValuePairStringValue(PsiAnnotationMemberValue value) {
-        return value.getText().replaceAll("\"", "");
-    }
 }

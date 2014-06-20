@@ -3,8 +3,11 @@ package com.unknown.seleniumplugin.checkers.selectorscheckers.impl.css;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.CheckResult;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.ISelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.NotParsebleSelectorException;
+import com.unknown.seleniumplugin.domain.SelectorSymbolConstants;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by mike-sid on 30.04.14.
@@ -14,9 +17,12 @@ public class CssSelectorChecker implements ISelectorChecker {
     private static final String NTH_CHILD_FUNCTION_NAME = "nth-child";
     private static String functionNames = NTH_CHILD_FUNCTION_NAME + ",disabled,last-child,enabled,checked,first-child";
     private static char[] functionNamesElementsDictionary;
+    private static List<String> functionsNamesList;
 
     static {
         functionNamesElementsDictionary = functionNames.replace(",", "").toCharArray();
+        functionsNamesList = new ArrayList<String>();
+        Collections.addAll(functionsNamesList, functionNames.split(","));
     }
 
     private static final String ATTRIBUTE_VALUE_NAME = "name";
@@ -104,9 +110,12 @@ public class CssSelectorChecker implements ISelectorChecker {
             return getCheckResultWithError("Function name can't contains only ':' without name of a function", position);
         }
         String functionName = parseFunctionName(selector, position);
+        if (!functionsNamesList.contains(functionName)) {
+            return getCheckResultWithError("Function name '" + functionName + "' is not valid. It should be one of : " + functionNames, position);
+        }
         if (position.value() == selector.length()) {
             if (functionName.equals(NTH_CHILD_FUNCTION_NAME)) {
-                getCheckResultWithError("There must be an a child index in braces after " + NTH_CHILD_FUNCTION_NAME +
+                return getCheckResultWithError("There must be an a child index in braces after " + NTH_CHILD_FUNCTION_NAME +
                         " function name", position);
             } else {
                 return getSuccessCheckResult();
@@ -118,17 +127,17 @@ public class CssSelectorChecker implements ISelectorChecker {
                 return getCheckResultWithError("There must be an '(' after " + NTH_CHILD_FUNCTION_NAME + " function", position);
             } else {
                 try {
-                   current = getNextChar(selector, position);
+                    current = getNextChar(selector, position);
                 } catch (EndOfSelector endOfSelector) {
-                    return getCheckResultWithError("Selector can't ends with '" + NTH_CHILD_FUNCTION_NAME +
-                            "' function name without braces", position);
+                    return getCheckResultWithError("Selector can't ends with opening braces after'" + NTH_CHILD_FUNCTION_NAME +
+                            "' function name.There must be an index", position);
                 }
 
-                if(!isChildValuePart(current)) {
+                if (!isChildValuePart(current)) {
                     return getCheckResultWithError("There must be an a digit after '(' in " + NTH_CHILD_FUNCTION_NAME + " function", position);
                 }
                 String indexValue = parseChildIndexValue(selector, position);
-                if(indexValue.isEmpty()) {
+                if (indexValue.isEmpty()) {
                     return getCheckResultWithError("Index of child for function " + NTH_CHILD_FUNCTION_NAME + " can't be empty", position);
                 }
                 if (position.value() == selector.length()) {
@@ -278,17 +287,32 @@ public class CssSelectorChecker implements ISelectorChecker {
         if (position.value() == selector.length()) {
             return getSuccessCheckResult();
         }
-        char next = getCurrentChar(selector, position);
-        if (isClassStartCharacter(next)) {
+        char current = getCurrentChar(selector, position);
+        boolean hasWhitespace = false;
+        if (isWhitespace(current)) {
+            hasWhitespace = true;
+            try {
+                skipWhitespaces(selector, position);
+            } catch (EndOfSelector endOfSelector) {
+                return getSuccessCheckResult();
+            }
+        }
+        current = getCurrentChar(selector, position);
+        if (isClassStartCharacter(current)) {
             return parseClass(selector, position);
-        } else if (isFunctionStartElement(next)) {
+        } else if (isFunctionStartElement(current)) {
+            if (hasWhitespace) {
+                return getCheckResultWithError("There can't be space between tag name and ':' function start symbol", position);
+            }
             return parseFunction(selector, position);
-        } else if (isOpeningElement(next)) {
+        } else if (isOpeningElement(current)) {
             return parseAttributes(selector, position);
-        } else if (isIdStartCharacter(next)) {
+        } else if (isIdStartCharacter(current)) {
             return parseId(selector, position);
-        } else if (isAnyElementDigit(next)) {
+        } else if (isAnyElementDigit(current)) {
             return parseAnyElementDigit(selector, position);
+        } else if (isTagNameStartCharacter(current)) {
+            return parseStartTag(selector, position);
         } else {
             throw new NotParsebleSelectorException("Not parseble exception");
         }
@@ -314,7 +338,7 @@ public class CssSelectorChecker implements ISelectorChecker {
         } else if (isIdStartCharacter(current)) {
             return getCheckResultWithError("There is a # after '['", position);
         }
-        String attributeName = parseSelectorStringPart(selector, position);
+        String attributeName = parseSelectorAttributeName(selector, position);
         if (position.value() == selector.length()) {
             return getCheckResultWithError("Selector can't ends with attribute name. It should contain value and ']' symbol after.", position);
         }
@@ -362,7 +386,7 @@ public class CssSelectorChecker implements ISelectorChecker {
             }
         }
         String attributeValue = parseSelectorAttributeValue(selector, position);
-        if(attributeValue.isEmpty()) {
+        if (attributeValue.isEmpty()) {
             return getCheckResultWithError("Attribute value can't be empty", position);
         }
         if (position.value() == selector.length()) {
@@ -411,7 +435,7 @@ public class CssSelectorChecker implements ISelectorChecker {
                 return parseStartTag(selector, position);
             } else if (isOpeningElement(current)) {
                 return parseAttributes(selector, position);
-            } else if(isFunctionStartElement(current)) {
+            } else if (isFunctionStartElement(current)) {
                 return getCheckResultWithError("There can't be : after whitespace. ", position);
             }
         } else {
@@ -419,10 +443,9 @@ public class CssSelectorChecker implements ISelectorChecker {
                 return getCheckResultWithError("There can't be . as next symbol after ']'", position);
             } else if (isIdStartCharacter(current)) {
                 return getCheckResultWithError("There can't be # as next symbol after ']'", position);
-            }
-            else if (isTagNameStartCharacter(current)) {
+            } else if (isTagNameStartCharacter(current)) {
                 return getCheckResultWithError("There can't be tag name after symbol after ']' without space", position);
-            } else if(isFunctionStartElement(current)) {
+            } else if (isFunctionStartElement(current)) {
                 return parseFunction(selector, position);
             }
         }
@@ -434,11 +457,14 @@ public class CssSelectorChecker implements ISelectorChecker {
     }
 
     private boolean isAttributeValueNotStrictlyEqualitySymbol(char ch) {
-        return ch == '*' || ch == '^' || ch == '$';
+        String value = String.valueOf(ch);
+        return value.equals(SelectorSymbolConstants.ATTRIBUTE_VALUE_ENDS_WITH_SYMBOL) ||
+                value.equals(SelectorSymbolConstants.ATTRIBUTE_VALUE_STARTS_WITH_SYMBOL) ||
+                value.equals(SelectorSymbolConstants.ANY_CHARACTER_SYMBOL);
     }
 
     private boolean isAttributeValueStrictlyEqualitySymbol(char ch) {
-        return ch == '=';
+        return String.valueOf(ch).equals(SelectorSymbolConstants.EQUAL_SYMBOL);
     }
 
 
@@ -451,27 +477,27 @@ public class CssSelectorChecker implements ISelectorChecker {
     }
 
     private boolean isClassStartCharacter(char ch) {
-        return ch == '.';
+        return String.valueOf(ch).equals(SelectorSymbolConstants.CLASS_SYMBOL);
     }
 
     private boolean isIdStartCharacter(char ch) {
-        return ch == '#';
+        return String.valueOf(ch).equals(SelectorSymbolConstants.ID_SYMBOL);
     }
 
     private boolean isOpeningElement(char ch) {
-        return ch == '[';
+        return String.valueOf(ch).equals(SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT);
     }
 
     private boolean isClosingElement(char ch) {
-        return ch == ']';
+        return String.valueOf(ch).equals(SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
     }
 
     private boolean isAnyElementDigit(char ch) {
-        return ch == '*';
+        return String.valueOf(ch).equals(SelectorSymbolConstants.ANY_CHARACTER_SYMBOL);
     }
 
     private boolean isFunctionStartElement(char ch) {
-        return ch == ':';
+        return String.valueOf(ch).equals(SelectorSymbolConstants.FUNCTION_START_SYMBOL);
     }
 
     private boolean isStartElement(char ch) {
@@ -523,6 +549,23 @@ public class CssSelectorChecker implements ISelectorChecker {
         int endTagPosition = position.value();
         return selector.substring(startTagPosition, endTagPosition);
     }
+
+    private String parseSelectorAttributeName(String selector, Position position) {
+        char next = getCurrentChar(selector, position);
+        int startTagPosition = position.value();
+        boolean tagNameNotFinished = isAttributeNamePartPart(next);
+        while (tagNameNotFinished) {
+            try {
+                next = getNextChar(selector, position);
+                tagNameNotFinished = isAttributeNamePartPart(next);
+            } catch (EndOfSelector e) {
+                tagNameNotFinished = false;
+            }
+        }
+        int endTagPosition = position.value();
+        return selector.substring(startTagPosition, endTagPosition);
+    }
+
 
     private String parseSelectorAttributeValue(String selector, Position position) {
         char next = getCurrentChar(selector, position);
@@ -590,7 +633,7 @@ public class CssSelectorChecker implements ISelectorChecker {
     }
 
     private static boolean isClassValuePart(char ch) {
-        return isTagNamePart(ch)  || ch == '-';
+        return isTagNamePart(ch) || ch == '-';
     }
 
     private static boolean isChildValuePart(char ch) {
@@ -612,16 +655,21 @@ public class CssSelectorChecker implements ISelectorChecker {
         return Character.isLetter(ch) || ch == '_' || Character.isDigit(ch);
     }
 
+
+    private static boolean isAttributeNamePartPart(char ch) {
+        return isTagNamePart(ch) || ch == '-';
+    }
+
     private static boolean isAttributeValuePart(char ch) {
         return isTagNamePart(ch) || isWhitespace(ch) || ch == '-';
     }
 
     private static boolean isOpeningBracesElement(char ch) {
-        return ch == '(';
+        return String.valueOf(ch).equals(SelectorSymbolConstants.FUNCTION_INDEX_OPENING_SYMBOL);
     }
 
     private static boolean isClosingBracesElement(char ch) {
-        return ch == ')';
+        return String.valueOf(ch).equals(SelectorSymbolConstants.FUNCTION_INDEX_CLOSING_SYMBOL);
     }
 
 

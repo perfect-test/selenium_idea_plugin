@@ -52,12 +52,15 @@ public class CssSelectorTests {
                 {"div[x=''] a[a='"},
                 {"div[x=''] a[a=''"},
                 {"div[x=''] a[a=']"},
+                {"*:nth-child"}
         };
     }
 
     @DataProvider
     public Object[][] goodSelectors() {
         return new Object[][]{
+                {"siv dav .ddd #fff"},
+                {"[accept-charset^='dd']"},
                 {"#mailbox.className"},
                 {"#mailbox[class='aa']"},
                 {"#mailbox .classBox"},
@@ -73,7 +76,7 @@ public class CssSelectorTests {
                 {"#div[   class =  'mailbox__register'][class='sasd']"},
                 {"#div[   class =  'mailbox__register'] .className"},
                 {"#div[   class =  'mailbox__register'] #dic"},
-                {"#div[   class =  '']"},
+                {"#div[   class =  'd'   ]"},
                 {"[class='adsfas '] [asdf='dsds']"},
                 {"div[class*='b-review-auth b-island']"},
                 {"div.b-dropdowna_action_placement span.b-form-button"},

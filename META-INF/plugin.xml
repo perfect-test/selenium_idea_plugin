@@ -26,6 +26,8 @@
   <extensions defaultExtensionNs="com.intellij">
       <annotator language="JAVA" implementationClass="com.unknown.seleniumplugin.checkers.annotator.SeleniumSelectorAnnotator"/>
       <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.unknown.seleniumplugin.linemaker.SeleniumFieldsLineMakerProvider"/>
+      <completion.contributor language="JAVA" implementationClass="com.unknown.seleniumplugin.codecomplete.SelectorCompletionContributor"
+                              />
       <!-- Add your extensions here -->
   </extensions>
 
