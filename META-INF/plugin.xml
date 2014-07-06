@@ -42,19 +42,22 @@
 
   <actions>
     <!-- Add your actions here -->
-      <action id="CreateSeleniumAnnotation" class="com.unknown.seleniumplugin.CreateSeleniumAnnotation"
-              text="Create Selenium Annotation" description="Creates annotation for field with @FindBy">
-          <add-to-group group-id="EditorActions" anchor="last"/>
-          <keyboard-shortcut keymap="$default" first-keystroke="meta S"/>
-      </action>
+      <!--<action id="CreateSeleniumAnnotation" class="com.unknown.seleniumplugin.CreateSeleniumAnnotation"-->
+              <!--text="Create Selenium Annotation" description="Creates annotation for field with @FindBy">-->
+          <!--<add-to-group group-id="EditorActions" anchor="last"/>-->
+          <!--<keyboard-shortcut keymap="$default" first-keystroke="meta S"/>-->
+      <!--</action>-->
       <group id="MyPlugin.SampleMenu" text="_Sample Menu" description="Sample menu">
           <add-to-group group-id="MainMenu" anchor="last"  />
           <action id="Myplugin.Textboxes" class="com.unknown.seleniumplugin.TextBoxes" text="Text _Boxes" description="A test menu item" />
-          <!--<action id="Myplugin.Dialogs" class="Mypackage.MyShowDialog" text="Show _Dialog" description="A test menu item" />-->
       </group>
-      <action id="generateWebElement" class="com.unknown.seleniumplugin.generatefield.backend.GenerateWebElement" text="Web Element Generation"
-              description="Generates the Selenium Web element field">
-          <add-to-group group-id="GenerateGroup" anchor="last"/>
+      <!--<action id="generateWebElement" class="com.unknown.seleniumplugin.generatefield.backend.GenerateWebElement" text="Web Element Generation"-->
+              <!--description="Generates the Selenium Web element field">-->
+          <!--<add-to-group group-id="GenerateGroup" anchor="last"/>-->
+      <!--</action>-->
+      <action id="SeleniumPlugin.SettingsToolbarAction" class="com.unknown.seleniumplugin.settings.actions.SeleniumPluginSettingsToolbarAction"
+              text="Selenium Plugin Toolbar Settings" description="Selenium Plugin Toolbar Settings" icon="PluginIcons.SELENIUM_LOGO">
+          <add-to-group group-id="MainToolBar" anchor="last"/>
       </action>
   </actions>
 

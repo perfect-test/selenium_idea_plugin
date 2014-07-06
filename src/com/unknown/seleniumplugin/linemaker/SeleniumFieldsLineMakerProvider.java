@@ -23,7 +23,7 @@ public class SeleniumFieldsLineMakerProvider extends RelatedItemLineMarkerProvid
             if (referenceElement != null) {
                 if (AnnotationChecker.isFindByAnnotation(referenceElement.getQualifiedName())) {
                     NavigationGutterIconBuilder<PsiElement> builder =
-                            NavigationGutterIconBuilder.create(PluginIcons.getSeleniumLogo()).setTarget(element).setTooltipText("Selenium element field");
+                            NavigationGutterIconBuilder.create(PluginIcons.SELENIUM_LOGO).setTarget(element).setTooltipText("Selenium element field");
                     result.add(builder.createLineMarkerInfo(element));
                 }
             }

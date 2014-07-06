@@ -17,7 +17,6 @@ public class CssInsertHandler implements ISeleniumInsertHandler {
         final Object object = lookupItem.getObject();
         final Editor editor = context.getEditor();
         final CaretModel caretModel = editor.getCaretModel();
-        int offset = caretModel.getOffset();
         if(object instanceof SeleniumCompletionVariant) {
             SeleniumCompletionVariant completionVariant = (SeleniumCompletionVariant)object;
             caretModel.moveToOffset(caretModel.getOffset() - completionVariant.getVariantString().length() + completionVariant.getCaretOffset());

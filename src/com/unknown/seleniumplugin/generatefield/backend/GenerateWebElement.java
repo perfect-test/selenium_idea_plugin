@@ -14,6 +14,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Processor;
+import com.unknown.seleniumplugin.generatefield.ui.GenerateDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +51,9 @@ public class GenerateWebElement extends AnAction {
 //        Messages.showInfoMessage("Source roots for the " + project.getName() + " plugin:\n" + sourceRootsList, "Project Properties");
 
 
-//        PsiClass psiClass = getPsiClassFromContext(e);
-//        GenerateDialog generateDialog = new GenerateDialog(psiClass);
-//        generateDialog.show();
+        PsiClass psiClass = getPsiClassFromContext(e);
+        GenerateDialog generateDialog = new GenerateDialog(psiClass);
+        generateDialog.show();
 //        if(generateDialog.isOK()) {
 //            generateComparable(psiClass, generateDialog.getFields());
 //        }
@@ -97,6 +98,7 @@ public class GenerateWebElement extends AnAction {
 
     private PsiClass getPsiClassFromContext(AnActionEvent e) {
         PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
+
         Editor editor = e.getData(LangDataKeys.EDITOR);
         if(psiFile == null || editor == null) {
             return null;
