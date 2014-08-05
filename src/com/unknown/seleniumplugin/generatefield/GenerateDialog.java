@@ -1,4 +1,4 @@
-package com.unknown.seleniumplugin.generatefield.ui;
+package com.unknown.seleniumplugin.generatefield;
 
 
 import com.intellij.ide.util.DefaultPsiElementCellRenderer;

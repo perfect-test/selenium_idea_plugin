@@ -1,8 +1,9 @@
-package com.unknown.seleniumplugin.generatefield.backend;
+package com.unknown.seleniumplugin;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
@@ -10,23 +11,50 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Processor;
-import com.unknown.seleniumplugin.generatefield.ui.GenerateDialog;
+import com.unknown.seleniumplugin.generatefield.GenerateDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by mike-sid on 11.04.14.
+ * Created by mike-sid on 09.04.14.
  */
-public class GenerateWebElement extends AnAction {
-    public static final String COM_GOOGLE_COMMON_COLLECT_COMPARISON_CHAIN = "com.google.common.collect.ComparisonChain";
+
+public class CodeExamples extends AnAction {
+    public static final String COM_GOOGLE_COMMON_COLLECT_COMPARISON_CHAIN = "com.google.common.collect.ComparisonChain";private PsiClass getPsiClassFromContext(AnActionEvent e) {
+        PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
+
+        Editor editor = e.getData(LangDataKeys.EDITOR);
+        if(psiFile == null || editor == null) {
+            return null;
+        }
+        int offset = editor.getCaretModel().getOffset();
+        PsiElement elementAt = psiFile.findElementAt(offset);
+        return PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
+    }
+    // If you register the action from Java code, this constructor is used to set the menu item name
+    // (optionally, you can specify the menu description and an icon to display next to the menu item).
+    // You can omit this constructor when registering the action in the plugin.xml file.
+    public CodeExamples() {
+        // Set the menu item name.
+        super("Text _Boxes");
+        // Set the menu item name, description and icon.
+        // super("Text _Boxes","Item description",IconLoader.getIcon("/Mypackage/icon.png"));
+    }
+
+    public void actionPerformed(AnActionEvent event) {
+        Project project = event.getData(PlatformDataKeys.PROJECT);
+        String txt= Messages.showInputDialog(project, "What is your name?", "Input your name", Messages.getQuestionIcon());
+        Messages.showMessageDialog(project, "Hello, " + txt + "!\n I am glad to see you.", "Information", Messages.getInformationIcon());
+    }
 
 
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed2(AnActionEvent e) {
         StringBuilder sourceRootsList = new StringBuilder();
         Project project = e.getProject();
         ModuleManager moduleManager = ModuleManager.getInstance(project);
@@ -96,16 +124,5 @@ public class GenerateWebElement extends AnAction {
         e.getPresentation().setEnabled(pciClass != null);
     }
 
-    private PsiClass getPsiClassFromContext(AnActionEvent e) {
-        PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
-
-        Editor editor = e.getData(LangDataKeys.EDITOR);
-        if(psiFile == null || editor == null) {
-            return null;
-        }
-        int offset = editor.getCaretModel().getOffset();
-        PsiElement elementAt = psiFile.findElementAt(offset);
-        return PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
-    }
 
 }

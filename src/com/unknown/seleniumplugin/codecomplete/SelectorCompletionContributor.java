@@ -2,7 +2,6 @@ package com.unknown.seleniumplugin.codecomplete;
 
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.codeInsight.lookup.LookupItem;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiNameValuePair;
@@ -12,7 +11,7 @@ import com.unknown.seleniumplugin.codecomplete.generators.ICompletionVariantsGen
 import com.unknown.seleniumplugin.codecomplete.generators.impl.CssCompletionVariantsGenerator;
 import com.unknown.seleniumplugin.codecomplete.inserthandlers.ISeleniumInsertHandler;
 import com.unknown.seleniumplugin.codecomplete.inserthandlers.impl.CssInsertHandler;
-import com.unknown.seleniumplugin.domain.SelectorValue;
+import com.unknown.seleniumplugin.domain.SelectorMethodValue;
 import com.unknown.seleniumplugin.domain.SeleniumCompletionVariant;
 import com.unknown.seleniumplugin.utils.AnnotationChecker;
 import com.unknown.seleniumplugin.utils.AnnotationsUtils;
@@ -43,10 +42,10 @@ public class SelectorCompletionContributor extends CompletionContributor {
                         System.out.println("annotation name : " + annotation.getQualifiedName());
 
                         if (AnnotationChecker.isFindByAnnotation(annotation.getQualifiedName())) {
-                            SelectorValue selectorValue = SelectorValue.getByText(pair.getName());
-                            List<SeleniumCompletionVariant> completionVariants = getCompletionVariants(pair, selectorValue);
+                            SelectorMethodValue selectorMethodValue = SelectorMethodValue.getByText(pair.getName());
+                            List<SeleniumCompletionVariant> completionVariants = getCompletionVariants(pair, selectorMethodValue);
                             if(completionVariants != null) {
-                                addVariantsToResult(completionVariants, result, selectorValue);
+                                addVariantsToResult(completionVariants, result, selectorMethodValue);
                             }
                         }
                     }
@@ -55,10 +54,10 @@ public class SelectorCompletionContributor extends CompletionContributor {
         });
     }
 
-    private void addVariantsToResult(List<SeleniumCompletionVariant> completionVariants, CompletionResultSet result, SelectorValue selectorValue) {
+    private void addVariantsToResult(List<SeleniumCompletionVariant> completionVariants, CompletionResultSet result, SelectorMethodValue selectorMethodValue) {
         ISeleniumInsertHandler insertHandler = null;
-        if (selectorValue != null) {
-            switch (selectorValue) {
+        if (selectorMethodValue != null) {
+            switch (selectorMethodValue) {
                 case CSS:
                     insertHandler = CSS_INSERT_HANDLER;
                     break;
@@ -76,14 +75,14 @@ public class SelectorCompletionContributor extends CompletionContributor {
         }
     }
 
-    private List<SeleniumCompletionVariant> getCompletionVariants(PsiNameValuePair annotationParameterNameValuePair, SelectorValue selectorValue) {
+    private List<SeleniumCompletionVariant> getCompletionVariants(PsiNameValuePair annotationParameterNameValuePair, SelectorMethodValue selectorMethodValue) {
         PsiAnnotationMemberValue value = annotationParameterNameValuePair.getValue();
         String leftValue = getValueBeforeCaret(AnnotationsUtils.getAnnotationParameterValue(value));
         if(isAnnotationValueString(leftValue)) {
             System.out.println("left value : " + leftValue);
             ICompletionVariantsGenerator completionVariantsGenerator = null;
-            if (selectorValue != null) {
-                switch (selectorValue) {
+            if (selectorMethodValue != null) {
+                switch (selectorMethodValue) {
                     case CSS:
                         completionVariantsGenerator = CSS_COMPLETION_VARIANTS_GENERATOR;
                         break;

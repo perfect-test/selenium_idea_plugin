@@ -3,14 +3,13 @@ package com.unknown.seleniumplugin.checkers.annotator;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.CheckResult;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.ISelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.NotParsebleSelectorException;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.css.CssSelectorChecker;
-import com.unknown.seleniumplugin.domain.SelectorValue;
+import com.unknown.seleniumplugin.domain.SelectorMethodValue;
 import com.unknown.seleniumplugin.settings.SeleniumSettingsParams;
 import com.unknown.seleniumplugin.utils.AnnotationChecker;
 import com.unknown.seleniumplugin.utils.AnnotationsUtils;
@@ -74,9 +73,9 @@ public class SeleniumSelectorAnnotator implements Annotator {
     private void setSelectorChecker(PsiNameValuePair nameValuePair) {
         String name = nameValuePair.getName();
         if (name != null) {
-            SelectorValue selectorValue = SelectorValue.getByText(name);
-            if (selectorValue != null) {
-                switch (selectorValue) {
+            SelectorMethodValue selectorMethodValue = SelectorMethodValue.getByText(name);
+            if (selectorMethodValue != null) {
+                switch (selectorMethodValue) {
                     case CSS:
                         selectorChecker = cssSelectorChecker;
                         break;
