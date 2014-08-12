@@ -26,7 +26,8 @@ import java.util.List;
  */
 
 public class CodeExamples extends AnAction {
-    public static final String COM_GOOGLE_COMMON_COLLECT_COMPARISON_CHAIN = "com.google.common.collect.ComparisonChain";private PsiClass getPsiClassFromContext(AnActionEvent e) {
+    public static final String COM_GOOGLE_COMMON_COLLECT_COMPARISON_CHAIN = "com.google.common.collect.ComparisonChain";
+    private PsiClass getPsiClassFromContext(AnActionEvent e) {
         PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
 
         Editor editor = e.getData(LangDataKeys.EDITOR);

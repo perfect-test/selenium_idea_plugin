@@ -28,11 +28,12 @@ public class SeleniumSelectorAnnotator implements Annotator {
             PsiAnnotation annotation = (PsiAnnotation) element;
             PsiJavaCodeReferenceElement referenceElement = annotation.getNameReferenceElement();
             if (referenceElement != null) {
-                if (AnnotationChecker.isFindByAnnotation(referenceElement.getQualifiedName())) {
-                    PropertiesComponent properties = PropertiesComponent.getInstance(element.getProject());
-                    if (properties.isValueSet(SeleniumSettingsParams.IS_SELECTOR_CHECK_ENABLED)) {
-                        boolean isCheckEnabled = properties.isTrueValue(SeleniumSettingsParams.IS_SELECTOR_CHECK_ENABLED);
-                        if (isCheckEnabled) {
+                PropertiesComponent properties = PropertiesComponent.getInstance(element.getProject());
+                if (properties.isValueSet(SeleniumSettingsParams.IS_SELECTOR_CHECK_ENABLED)) {
+                    boolean isCheckEnabled = properties.isTrueValue(SeleniumSettingsParams.IS_SELECTOR_CHECK_ENABLED);
+                    if (isCheckEnabled) {
+                        if (AnnotationChecker.isFindByAnnotation(referenceElement.getQualifiedName()) ||
+                                AnnotationChecker.isFindBysAnnotation(referenceElement.getQualifiedName())) {
                             PsiNameValuePair[] nameValuePairs = annotation.getParameterList().getAttributes();
                             if (nameValuePairs.length > 0) {
                                 for (PsiNameValuePair nameValuePair : nameValuePairs) {
@@ -43,19 +44,7 @@ public class SeleniumSelectorAnnotator implements Annotator {
                                             String value = AnnotationsUtils.getClearAnnotationParameterValue(nameValuePairValue);
                                             System.out.println("Значение : '" + value + "'");
                                             if (value != null) {
-                                                try {
-                                                    CheckResult checkResult = selectorChecker.checkSelectorValid(value);
-                                                    if (!checkResult.isResultSuccess()) {
-                                                        int startOffset = nameValuePairValue.getTextRange().getStartOffset() + checkResult.getPosition();
-                                                        int endOffset = startOffset + 2;
-                                                        TextRange range = new TextRange(startOffset, endOffset);
-                                                        holder.createErrorAnnotation(range, checkResult.getMessage());
-                                                    }
-                                                } catch (NotParsebleSelectorException e) {
-                                                    TextRange range = new TextRange(nameValuePairValue.getTextRange().getStartOffset(),
-                                                            nameValuePairValue.getTextRange().getEndOffset());
-                                                    holder.createWarningAnnotation(range, "Not parseble selector");
-                                                }
+                                                checkError(value, nameValuePairValue, holder);
                                             }
                                         }
                                     }
@@ -63,11 +52,25 @@ public class SeleniumSelectorAnnotator implements Annotator {
                             }
                         }
                     }
-
                 }
             }
         }
+    }
 
+    private void checkError(String value, PsiAnnotationMemberValue nameValuePairValue, AnnotationHolder holder) {
+        try {
+            CheckResult checkResult = selectorChecker.checkSelectorValid(value);
+            if (!checkResult.isResultSuccess()) {
+                int startOffset = nameValuePairValue.getTextRange().getStartOffset() + checkResult.getPosition();
+                int endOffset = startOffset + 2;
+                TextRange range = new TextRange(startOffset, endOffset);
+                holder.createErrorAnnotation(range, checkResult.getMessage());
+            }
+        } catch (NotParsebleSelectorException e) {
+            TextRange range = new TextRange(nameValuePairValue.getTextRange().getStartOffset(),
+                    nameValuePairValue.getTextRange().getEndOffset());
+            holder.createWarningAnnotation(range, "Not parseble selector");
+        }
     }
 
     private void setSelectorChecker(PsiNameValuePair nameValuePair) {

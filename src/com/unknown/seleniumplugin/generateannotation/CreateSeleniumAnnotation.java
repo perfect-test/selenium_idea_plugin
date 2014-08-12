@@ -5,13 +5,15 @@ import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
+import com.intellij.openapi.util.TextRange;
+import com.unknown.seleniumplugin.pluginproperties.GlobalPluginProperties;
 
 /**
  * Created by mike-sid on 08.04.14.
  */
 public class CreateSeleniumAnnotation extends EditorAction {
     private static final String CARET_POSITION_PARAM_NAME = "{cp}";
-    private static final String ANNOTATION_TEMPLATE = "\t@FindBy(css=\"" + CARET_POSITION_PARAM_NAME + "\")\n";
+    private static final String ANNOTATION_TEMPLATE = "\t" + GlobalPluginProperties.SELENIUM_ELEMENT_ANNOTATION + "(css=\"" + CARET_POSITION_PARAM_NAME + "\")\n";
 
     public CreateSeleniumAnnotation() {
         this(new UpHandler());
@@ -43,7 +45,6 @@ public class CreateSeleniumAnnotation extends EditorAction {
             editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
         }
     }
-
 
 
 }

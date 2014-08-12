@@ -22,7 +22,7 @@ import com.unknown.seleniumplugin.pluginproperties.GlobalPluginProperties;
  */
 public class FastFieldGenerationAction extends EditorAction {
     private static final String CARET_POSITION_PARAM_NAME = "{cp}";
-    private static final String ANNOTATION_TEMPLATE = "\t@FindBy(css=\"" + CARET_POSITION_PARAM_NAME + "\")\n" +
+    private static final String ANNOTATION_TEMPLATE = "\t" + GlobalPluginProperties.SELENIUM_ELEMENT_ANNOTATION + "(css=\"" + CARET_POSITION_PARAM_NAME + "\")\n" +
             "\tprivate " + GlobalPluginProperties.WEB_ELEMENT_FIELD_TYPE + " webElement;\n";
 
     public FastFieldGenerationAction() {

@@ -65,6 +65,11 @@
           <add-to-group group-id="EditorContextBarMenu" anchor="last"/>
           <keyboard-shortcut keymap="$default" first-keystroke="meta W"/>
       </action>
+      <action id="CheckElementExistanceAction"
+              class="com.unknown.seleniumplugin.elementscheckers.existancechecker.backend.CheckElementExistenceAction"
+              text="Check Element Existance" description="Checks element existance on page (with phantomJs)">
+          <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+      </action>
   </actions>
 
 </idea-plugin>

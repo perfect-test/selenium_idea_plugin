@@ -191,7 +191,7 @@ public class CssSelectorChecker implements ISelectorChecker {
         try {
             getNextChar(selector, position);
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Id can't contains only '#'. There should be a tag name", position);
+            return getCheckResultWithError("Id can't contains only '#'. There should be an identifier", position);
         }
         char current = getCurrentChar(selector, position);
         if (isWhitespace(current)) {
@@ -228,6 +228,8 @@ public class CssSelectorChecker implements ISelectorChecker {
                     return parseClass(selector, position);
                 } else if (isOpeningElement(current)) {
                     return parseAttributes(selector, position);
+                } else if (isClosingElement(current)) {
+                    return getCheckResultWithError("There can't be an ']' without '[", position);
                 }
             } catch (EndOfSelector endOfSelector) {
                 getSuccessCheckResult();

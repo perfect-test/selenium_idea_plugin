@@ -5,8 +5,14 @@ package com.unknown.seleniumplugin.utils;
  */
 public class AnnotationChecker {
     private static final String SELENIUM_FIND_BY_ANNOTATION_CLASS_NAME = "org.openqa.selenium.support.FindBy";
+    private static final String SELENIUM_FIND_BYS_ANNOTATION_CLASS_NAME = "org.openqa.selenium.support.FindBy";
 
     public static boolean isFindByAnnotation(String annotationName) {
         return annotationName.equals(SELENIUM_FIND_BY_ANNOTATION_CLASS_NAME);
     }
+
+    public static boolean isFindBysAnnotation(String annotationName) {
+        return annotationName.equals(SELENIUM_FIND_BYS_ANNOTATION_CLASS_NAME);
+    }
+
 }
