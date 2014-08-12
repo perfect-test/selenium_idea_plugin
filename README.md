@@ -3,7 +3,7 @@ email : sidelnikovmike@gmail.com
 
 
 <b>Hot keys:</b><br>
-ctrl+S - generate FindBy annotation
+ctrl+S - generate FindBy annotation<br>
 ctrl+W - generate field with annotation
 
 
