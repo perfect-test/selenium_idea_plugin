@@ -1,6 +1,8 @@
 package com.unknown.seleniumplugin.elementscheckers.existancechecker.backend;
 
 import com.unknown.seleniumplugin.domain.SelectorMethodValue;
+import com.unknown.seleniumplugin.utils.HttpUtils;
+import org.apache.http.HttpResponse;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -16,6 +18,14 @@ public class WebDriverChecker {
     public static CheckElementExistenceResult checkElementExist(String urlTextFieldText, String locatorValueTextFieldText,
                                                                 String locatorMethodTextFieldText,
                                                                 boolean isMultiElements)  {
+        HttpResponse response = HttpUtils.sendGetRequest(urlTextFieldText);
+        if(response == null) {
+            return new CheckElementExistenceResult("Url not valid - no response", false);
+        }
+        int code = HttpUtils.getResponseCode(response);
+        if(!HttpUtils.isCodeGood(code)) {
+            return new CheckElementExistenceResult("Url returns not valid code("+ code+")", false);
+        }
         WebDriver driver = null;
         try {
             SelectorMethodValue selectorMethodValue = SelectorMethodValue.getByText(locatorMethodTextFieldText);
