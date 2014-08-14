@@ -8,7 +8,7 @@ import com.intellij.psi.*;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.CheckResult;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.ISelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.NotParsebleSelectorException;
-import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.classname.ClassNameSelectorChecker;
+import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.classnamechecker.ClassNameSelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.css.CssSelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.id.IDSelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.tagname.TagNameSelectorChecker;
@@ -24,8 +24,8 @@ import org.jetbrains.annotations.NotNull;
 public class SeleniumSelectorAnnotator implements Annotator {
     private static final ISelectorChecker CSS_SELECTOR_CHECKER = new CssSelectorChecker();
     private static final ISelectorChecker ID_SELECTOR_CHECKER = new IDSelectorChecker();
-    private static final ISelectorChecker CLASS_NAME_SELECTOR_CHECKER = new ClassNameSelectorChecker();
     private static final ISelectorChecker TAG_NAME_SELECTOR_CHECKER = new TagNameSelectorChecker();
+    private static final ISelectorChecker CLASS_NAME_SELECTOR_CHECKER = new ClassNameSelectorChecker();
     private ISelectorChecker selectorChecker;
 
 
@@ -98,11 +98,11 @@ public class SeleniumSelectorAnnotator implements Annotator {
                     case ID:
                         selectorChecker = ID_SELECTOR_CHECKER;
                         break;
-                    case CLASS_NAME:
-                        selectorChecker = CLASS_NAME_SELECTOR_CHECKER;
-                        break;
                     case TAG_NAME:
                         selectorChecker = TAG_NAME_SELECTOR_CHECKER;
+                        break;
+                    case CLASS_NAME:
+                        selectorChecker = CLASS_NAME_SELECTOR_CHECKER;
                         break;
                     default:
                         //do nothing

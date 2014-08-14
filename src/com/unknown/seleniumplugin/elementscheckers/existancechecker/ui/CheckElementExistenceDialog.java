@@ -29,10 +29,12 @@ public class CheckElementExistenceDialog extends DialogWrapper {
     private JLabel statusTextField;
     private JTextField locatorValueTextField;
     private JTextField locatorMethodTextField;
+    private JButton saveNewValueButton;
     private String locator;
     private String findMethod;
     private Project project;
     private boolean isMultiElements;
+    private String newSelectorVersion;
 
     public CheckElementExistenceDialog(Project project, final String locator, final String findMethod, boolean isMultiElements) {
         super(project);
@@ -51,6 +53,15 @@ public class CheckElementExistenceDialog extends DialogWrapper {
                 checkElement();
             }
         });
+
+        saveNewValueButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                newSelectorVersion = locatorValueTextField.getText();
+                disableSaveNewLocatorButton();
+            }
+        });
+
         urlTextField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 setCheckButtonState();
@@ -59,6 +70,7 @@ public class CheckElementExistenceDialog extends DialogWrapper {
         locatorValueTextField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 setCheckButtonState();
+                setSaveNewLocatorButtonState();
             }
         });
         locatorMethodTextField.addKeyListener(new KeyAdapter() {
@@ -68,6 +80,24 @@ public class CheckElementExistenceDialog extends DialogWrapper {
         });
 
     }
+
+    private void setSaveNewLocatorButtonState() {
+        String locatorTextFieldValue = locatorValueTextField.getText();
+        if(!locatorTextFieldValue.isEmpty() && !locatorTextFieldValue.equals(locator)) {
+            enableSaveNewLocatorButton();
+        } else {
+            disableSaveNewLocatorButton();
+        }
+    }
+
+    private void enableSaveNewLocatorButton() {
+        saveNewValueButton.setEnabled(true);
+    }
+
+    private void disableSaveNewLocatorButton() {
+        saveNewValueButton.setEnabled(false);
+    }
+
 
 
     private void checkElement() {
@@ -133,9 +163,9 @@ public class CheckElementExistenceDialog extends DialogWrapper {
     private void setStates() {
         setLocatorElementsState();
         setCheckButtonState();
+        disableSaveNewLocatorButton();
     }
 
-    //TODO:may add check locator with result check
     private boolean isLocatorValueFieldValid() {
         return locatorValueTextField.getText() == null || locatorValueTextField.getText().isEmpty();
     }
@@ -183,4 +213,7 @@ public class CheckElementExistenceDialog extends DialogWrapper {
         super.doOKAction();
     }
 
+    public String getNewSelectorVersion() {
+        return newSelectorVersion;
+    }
 }

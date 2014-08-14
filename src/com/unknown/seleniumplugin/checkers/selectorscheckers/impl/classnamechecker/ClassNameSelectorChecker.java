@@ -1,4 +1,4 @@
-package com.unknown.seleniumplugin.checkers.selectorscheckers.impl.classname;
+package com.unknown.seleniumplugin.checkers.selectorscheckers.impl.classnamechecker;
 
 import com.unknown.seleniumplugin.checkers.selectorscheckers.CheckResult;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.ISelectorChecker;

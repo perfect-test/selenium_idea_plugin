@@ -6,18 +6,21 @@ import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.codeInsight.hint.HintManagerImpl;
 import com.intellij.find.FindBundle;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.ScrollType;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiNameValuePair;
-import com.intellij.psi.PsiReference;
+import com.intellij.psi.*;
 import com.intellij.psi.impl.source.tree.java.PsiNameValuePairImpl;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.unknown.seleniumplugin.domain.SelectorMethodValue;
 import com.unknown.seleniumplugin.elementscheckers.existancechecker.ui.CheckElementExistenceDialog;
+import com.unknown.seleniumplugin.generatefield.backend.FieldsGenerationTemplates;
 import com.unknown.seleniumplugin.pluginproperties.GlobalPluginProperties;
 
 import java.util.Collection;
@@ -30,7 +33,7 @@ public class CheckElementExistenceAction extends AnAction {
 
     public void actionPerformed(AnActionEvent e) {
         Editor editor = e.getData(LangDataKeys.EDITOR);
-        if ( editor == null) {
+        if (editor == null) {
             return;
         }
         Document document = editor.getDocument();
@@ -39,19 +42,79 @@ public class CheckElementExistenceAction extends AnAction {
         }
         String locator = null;
         String findMethod = null;
-        String currentStringText = document.getText(new TextRange(editor.getCaretModel().getVisualLineStart(),
-                editor.getCaretModel().getVisualLineEnd())).trim();
-        if(currentStringText.isEmpty() || !isContainsLocator(currentStringText)) {
+        CaretModel caretModel = editor.getCaretModel();
+        String currentStringText = document.getText(new TextRange(caretModel.getVisualLineStart(),
+                caretModel.getVisualLineEnd()));
+        if (currentStringText.isEmpty() || !isContainsLocator(currentStringText)) {
             showError(e.getProject());
         } else {
+            int startOfAnnotation = caretModel.getVisualLineStart() + currentStringText.indexOf(GlobalPluginProperties.SELENIUM_ELEMENT_ANNOTATION);
+            currentStringText = currentStringText.trim();
             findMethod = getFindMethod(currentStringText);
-            if(findMethod != null) {
+            if (findMethod != null) {
                 locator = getLocator(currentStringText);
             }
-            CheckElementExistenceDialog checkElementExistenceDialog = new CheckElementExistenceDialog(e.getProject(), locator, findMethod, isMultiElements(currentStringText));
+            CheckElementExistenceDialog checkElementExistenceDialog = new CheckElementExistenceDialog(e.getProject(),
+                    locator, findMethod, isMultiElements(currentStringText));
             checkElementExistenceDialog.show();
+            if(checkElementExistenceDialog.isOK()) {
+                String newSelectorValue = checkElementExistenceDialog.getNewSelectorVersion();
+                if (newSelectorValue != null && !newSelectorValue.isEmpty()) {
+                    updateSelectorValue(newSelectorValue, getPsiClassFromContext(e),
+                            getStartSelectorIndex(currentStringText), getEndSelectorIndex(currentStringText), startOfAnnotation);
+                }
+            }
         }
     }
+
+    private int getEndSelectorIndex(String currentStringText) {
+        String elementStartAndEndSymbol = "\"";
+        int indexOfSelectorValueStart = currentStringText.indexOf(elementStartAndEndSymbol);
+        if (indexOfSelectorValueStart > 0) {
+            return currentStringText.indexOf(elementStartAndEndSymbol, indexOfSelectorValueStart + elementStartAndEndSymbol.length());
+        }
+        return 0;
+    }
+
+    private int getStartSelectorIndex(String currentStringText) {
+        return currentStringText.indexOf("\"") + 1;
+    }
+
+    private void updateSelectorValue(final String newSelectorValue, final PsiClass psiClass,
+                                     final int startSelectorIndex, final int endSelectorIndex, final int startOfAnnotation) {
+        System.out.println("NEW selector value : " + newSelectorValue);
+        if (startSelectorIndex > 0 && endSelectorIndex > 0 && startOfAnnotation >= 0 && endSelectorIndex > startSelectorIndex) {
+            new WriteCommandAction.Simple(psiClass.getProject(), psiClass.getContainingFile()) {
+                @Override
+                protected void run() throws Throwable {
+                    Editor editor = FileEditorManager.getInstance(psiClass.getProject()).getSelectedTextEditor();
+                    if (editor == null) {
+                        return;
+                    }
+                    Document document = editor.getDocument();
+                    CaretModel caretModel = editor.getCaretModel();
+                    int startOfReplace = startOfAnnotation + startSelectorIndex;
+                    int endOfReplace = startOfAnnotation + endSelectorIndex;
+                    document.replaceString(startOfReplace, endOfReplace, newSelectorValue);
+                    caretModel.moveToOffset(startOfAnnotation + startSelectorIndex + newSelectorValue.length());
+                }
+
+            }.execute();
+        }
+    }
+
+    private PsiClass getPsiClassFromContext(AnActionEvent e) {
+        PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
+
+        Editor editor = e.getData(LangDataKeys.EDITOR);
+        if (psiFile == null || editor == null) {
+            return null;
+        }
+        int offset = editor.getCaretModel().getOffset();
+        PsiElement elementAt = psiFile.findElementAt(offset);
+        return PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
+    }
+
 
     //TODO: make as baloon error.
     private void showError(Project project) {
@@ -64,8 +127,8 @@ public class CheckElementExistenceAction extends AnAction {
     }
 
     private String getFindMethod(String currentStringText) {
-        for(SelectorMethodValue selectorMethodValue : SelectorMethodValue.values()) {
-            if(currentStringText.contains(selectorMethodValue.getSelectorMethod())){
+        for (SelectorMethodValue selectorMethodValue : SelectorMethodValue.values()) {
+            if (currentStringText.contains(selectorMethodValue.getSelectorMethod())) {
                 return selectorMethodValue.getSelectorMethod();
             }
         }
