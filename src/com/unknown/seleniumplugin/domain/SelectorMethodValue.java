@@ -6,10 +6,11 @@ package com.unknown.seleniumplugin.domain;
 public enum SelectorMethodValue {
     CSS("css"),
     XPATH("xpath"),
-    CLASSNAME("className"),
+    CLASS_NAME("className"),
     ID("id"),
     LINK_TEXT("linkText"),
-    NAME("name");
+    NAME("name"),
+    TAG_NAME("tagName");
     private final String selectorMethod;
 
     SelectorMethodValue(String selectorMethod) {

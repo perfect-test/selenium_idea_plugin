@@ -2,7 +2,9 @@ package com.unknown.seleniumplugin.checkers.selectorscheckers.impl.css;
 
 import com.unknown.seleniumplugin.checkers.selectorscheckers.CheckResult;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.ISelectorChecker;
+import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.EndOfSelector;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.NotParsebleSelectorException;
+import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.Position;
 import com.unknown.seleniumplugin.domain.SelectorSymbolConstants;
 
 import java.util.ArrayList;
@@ -27,32 +29,8 @@ public class CssSelectorChecker implements ISelectorChecker {
 
     private static final String ATTRIBUTE_VALUE_NAME = "name";
 
-    static class Position {
-        int position = 0;
-
-        int increment() {
-            return ++position;
-        }
-
-        void decrement() {
-            position--;
-        }
-
-        int value() {
-            return position;
-        }
-    }
-
-    static class EndOfSelector extends Exception {
-        EndOfSelector(Exception e) {
-            super(e);
-        }
-    }
-
-
     @Override
     public CheckResult checkSelectorValid(String selector) throws NotParsebleSelectorException {
-
         Position position = new Position();
         if (selector.isEmpty()) {
             return getCheckResultWithError("Selector can't be empty", position);
@@ -228,8 +206,21 @@ public class CssSelectorChecker implements ISelectorChecker {
                     return parseClass(selector, position);
                 } else if (isOpeningElement(current)) {
                     return parseAttributes(selector, position);
-                } else if (isClosingElement(current)) {
+                    //TODO: check all elements after id
+                } else if (isClosingElement(current) ) {
                     return getCheckResultWithError("There can't be an ']' without '[", position);
+                } else if (isFunctionStartElement(current)) {
+                    return getCheckResultWithError("There can't be an ':' without function name", position);
+                } else if (isOpeningBracesElement(current) || isClosingBracesElement(current)) {
+                    return getCheckResultWithError("There can't be an '(' or ')' without function name", position);
+                } else if (isAttributeValueStrictlyEqualitySymbol(current)){
+                    return getCheckResultWithError("There can't be an '='  without '[' and attribute name", position);
+                } else if (isAttributeValueEndsWithSymbol(current)) {
+                    return getCheckResultWithError("There can't be an '$'  without '[' and attribute name", position);
+                } else if (isAttributeValueStartsWithSymbol(current)) {
+                    return getCheckResultWithError("There can't be an '^'  without '[' and attribute name", position);
+                } else if (isSingleQuotSymbol(current)) {
+                    return getCheckResultWithError("There can't be an ' without '[' and attribute name", position);
                 }
             } catch (EndOfSelector endOfSelector) {
                 getSuccessCheckResult();
@@ -275,6 +266,20 @@ public class CssSelectorChecker implements ISelectorChecker {
                     return parseClass(selector, position);
                 } else if (isOpeningElement(current)) {
                     return parseAttributes(selector, position);
+                } if (isClosingElement(current) ) {
+                    return getCheckResultWithError("There can't be an ']' without '[", position);
+                } else if (isFunctionStartElement(current)) {
+                    return getCheckResultWithError("There can't be an ':' without function name", position);
+                } else if (isOpeningBracesElement(current) || isClosingBracesElement(current)) {
+                    return getCheckResultWithError("There can't be an '(' or ')' without function name", position);
+                } else if (isAttributeValueStrictlyEqualitySymbol(current)){
+                    return getCheckResultWithError("There can't be an '='  without '[' and attribute name", position);
+                } else if (isAttributeValueEndsWithSymbol(current)) {
+                    return getCheckResultWithError("There can't be an '$'  without '[' and attribute name", position);
+                } else if (isAttributeValueStartsWithSymbol(current)) {
+                    return getCheckResultWithError("There can't be an '^'  without '[' and attribute name", position);
+                } else if (isSingleQuotSymbol(current)) {
+                    return getCheckResultWithError("There can't be an ' without '[' and attribute name", position);
                 }
             } catch (EndOfSelector endOfSelector) {
                 getSuccessCheckResult();
@@ -315,6 +320,20 @@ public class CssSelectorChecker implements ISelectorChecker {
             return parseAnyElementDigit(selector, position);
         } else if (isTagNameStartCharacter(current)) {
             return parseStartTag(selector, position);
+        } if (isClosingElement(current) ) {
+            return getCheckResultWithError("There can't be an ']' without '[", position);
+        } else if (isFunctionStartElement(current)) {
+            return getCheckResultWithError("There can't be an ':' without function name", position);
+        } else if (isOpeningBracesElement(current) || isClosingBracesElement(current)) {
+            return getCheckResultWithError("There can't be an '(' or ')' without function name", position);
+        } else if (isAttributeValueStrictlyEqualitySymbol(current)){
+            return getCheckResultWithError("There can't be an '='  without '[' and attribute name", position);
+        } else if (isAttributeValueEndsWithSymbol(current)) {
+            return getCheckResultWithError("There can't be an '$'  without '[' and attribute name", position);
+        } else if (isAttributeValueStartsWithSymbol(current)) {
+            return getCheckResultWithError("There can't be an '^'  without '[' and attribute name", position);
+        } else if (isSingleQuotSymbol(current)) {
+            return getCheckResultWithError("There can't be an ' without '[' and attribute name", position);
         } else {
             throw new NotParsebleSelectorException("Not parseble exception");
         }
@@ -455,7 +474,7 @@ public class CssSelectorChecker implements ISelectorChecker {
     }
 
     private boolean isSingleQuotSymbol(char ch) {
-        return ch == '\'';
+        return String.valueOf(ch).equals(SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL);
     }
 
     private boolean isAttributeValueNotStrictlyEqualitySymbol(char ch) {
@@ -467,6 +486,14 @@ public class CssSelectorChecker implements ISelectorChecker {
 
     private boolean isAttributeValueStrictlyEqualitySymbol(char ch) {
         return String.valueOf(ch).equals(SelectorSymbolConstants.EQUAL_SYMBOL);
+    }
+
+    private boolean isAttributeValueEndsWithSymbol(char ch) {
+        return String.valueOf(ch).equals(SelectorSymbolConstants.ATTRIBUTE_VALUE_ENDS_WITH_SYMBOL);
+    }
+
+    private boolean isAttributeValueStartsWithSymbol(char ch) {
+        return String.valueOf(ch).equals(SelectorSymbolConstants.ATTRIBUTE_VALUE_STARTS_WITH_SYMBOL);
     }
 
 

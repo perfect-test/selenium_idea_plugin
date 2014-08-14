@@ -45,7 +45,7 @@ public class WebDriverChecker {
                     case ID:
                         by = By.id(locatorValueTextFieldText);
                         break;
-                    case CLASSNAME:
+                    case CLASS_NAME:
                         by = By.className(locatorValueTextFieldText);
                         break;
                     case NAME:
