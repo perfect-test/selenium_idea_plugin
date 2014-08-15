@@ -10,6 +10,7 @@ public class CheckResult {
     private boolean isResultSuccess;
     private String message;
     private int position;
+    private String fixVariant;
 
 
     public CheckResult(boolean isResultSuccess, String message) {
@@ -39,5 +40,13 @@ public class CheckResult {
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public String getFixVariant() {
+        return fixVariant;
+    }
+
+    public void setFixVariant(String fixVariant) {
+        this.fixVariant = fixVariant;
     }
 }

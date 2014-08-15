@@ -16,12 +16,12 @@ public class TagNameSelectorChecker implements ISelectorChecker {
     public CheckResult checkSelectorValid(String selector) throws NotParsebleSelectorException {
         Position position = new Position();
         if (selector.isEmpty()) {
-            return getCheckResultWithError("Selector can't be empty", position);
+            return getCheckResultWithError("Selector can't be empty", position, "Add an tag name value");
         }
         try {
             skipWhitespaces(selector, position);
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Selector can't be empty", position);
+            return getCheckResultWithError("Selector can't be empty", position, "Add an tag name value");
         }
         char current = getCurrentChar(selector, position);
         if(isTagNamePart(current)) {
@@ -33,14 +33,16 @@ public class TagNameSelectorChecker implements ISelectorChecker {
             if (isWhitespace(current)) {
                 try {
                     skipWhitespaces(selector, position);
-                    return getCheckResultWithError("There can't be any symbol after tag name and spaces", position);
+                    return getCheckResultWithError("There can't be any symbol after tag name and spaces", position,
+                            "Delete all symbols after tag name");
                 } catch (EndOfSelector endOfSelector) {
                     return getSuccessCheckResult();
                 }
             }
 
         } else {
-            return getCheckResultWithError("Tag name value not starts with valid symbol", position);
+            return getCheckResultWithError("Tag name value not starts with valid symbol", position,
+                    "Tag name can start only with number or letter");
         }
 
         return null;
@@ -91,7 +93,7 @@ public class TagNameSelectorChecker implements ISelectorChecker {
     }
 
 
-    private CheckResult getCheckResultWithError(String errorMessage, Position position) {
+    private CheckResult getCheckResultWithError(String errorMessage, Position position, String fixVariant) {
         CheckResult checkResult = new CheckResult(false, errorMessage);
         checkResult.setPosition(position.value());
         return checkResult;

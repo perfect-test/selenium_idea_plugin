@@ -16,12 +16,12 @@ public class IDSelectorChecker implements ISelectorChecker {
     public CheckResult checkSelectorValid(String selector) throws NotParsebleSelectorException {
         Position position = new Position();
         if (selector.isEmpty()) {
-            return getCheckResultWithError("Selector can't be empty", position);
+            return getCheckResultWithError("Selector can't be empty", position, "Add an identifier value");
         }
         try {
             skipWhitespaces(selector, position);
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Selector can't be empty", position);
+            return getCheckResultWithError("Selector can't be empty", position, "Add an identifier value");
         }
         char current = getCurrentChar(selector, position);
         if(isIdNamePart(current)) {
@@ -33,14 +33,15 @@ public class IDSelectorChecker implements ISelectorChecker {
             if (isWhitespace(current)) {
                 try {
                     skipWhitespaces(selector, position);
-                    return getCheckResultWithError("There can't be any symbol after id name and spaces", position);
+                    return getCheckResultWithError("There can't be any symbol after id name and spaces", position,
+                            "Delete all symbols after identifier value");
                 } catch (EndOfSelector endOfSelector) {
                     return getSuccessCheckResult();
                 }
             }
 
         } else {
-            return getCheckResultWithError("Id value not starts with valid symbol", position);
+            return getCheckResultWithError("Id value not starts with valid symbol", position, "Id can starts only with digit or letter");
         }
 
         return null;
@@ -91,9 +92,10 @@ public class IDSelectorChecker implements ISelectorChecker {
     }
 
 
-    private CheckResult getCheckResultWithError(String errorMessage, Position position) {
+    private CheckResult getCheckResultWithError(String errorMessage, Position position, String fixVariant) {
         CheckResult checkResult = new CheckResult(false, errorMessage);
         checkResult.setPosition(position.value());
+        checkResult.setFixVariant(fixVariant);
         return checkResult;
     }
 

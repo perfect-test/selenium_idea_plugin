@@ -33,12 +33,12 @@ public class CssSelectorChecker implements ISelectorChecker {
     public CheckResult checkSelectorValid(String selector) throws NotParsebleSelectorException {
         Position position = new Position();
         if (selector.isEmpty()) {
-            return getCheckResultWithError("Selector can't be empty", position);
+            return getCheckResultWithError("Selector can't be empty", position, "Add some value");
         }
         try {
             skipWhitespaces(selector, position);
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Selector can't be empty", position);
+            return getCheckResultWithError("Selector can't be empty", position, "Add some value");
         }
         char next = getCurrentChar(selector, position);
         if (isIdStartCharacter(next)) {
@@ -52,7 +52,9 @@ public class CssSelectorChecker implements ISelectorChecker {
         } else if (isOpeningElement(next)) {
             return parseAttributes(selector, position);
         } else {
-            return getCheckResultWithError("Selector starts not with tag name or '.' or '#' or '[' or '*'", position);
+            return getCheckResultWithError("Selector starts not with tag name or '.' or '#' or '[' or '*'", position,
+                    "Fix selector start. There can be: tag name, '.'(class name)," +
+                            "'#' (id symbol),'[','*'(any element)");
         }
 
 
@@ -68,13 +70,13 @@ public class CssSelectorChecker implements ISelectorChecker {
             } else if (isTagNameStartCharacter(current)) {
                 return parseStartTag(selector, position);
             } else if (isAnyElementDigit(current)) {
-                return getCheckResultWithError("There can't be * after *", position);
+                return getCheckResultWithError("There can't be * after *", position, "Replace second *");
             } else if (isOpeningElement(current)) {
                 return parseAttributes(selector, position);
             } else if (isFunctionStartElement(current)) {
                 return parseFunction(selector, position);
             } else {
-                throw new NotParsebleSelectorException("Not parseble exception");
+                throw new NotParsebleSelectorException("Selector not parsed");
             }
         } catch (EndOfSelector e) {
             return getSuccessCheckResult();
@@ -85,16 +87,18 @@ public class CssSelectorChecker implements ISelectorChecker {
         try {
             getNextChar(selector, position);
         } catch (EndOfSelector endOfSelector) {
-            return getCheckResultWithError("Function name can't contains only ':' without name of a function", position);
+            return getCheckResultWithError("Function name can't contains only ':' without name of a function", position,
+                    "Add one of (" + functionNames + ") functions after ':' symbol");
         }
         String functionName = parseFunctionName(selector, position);
         if (!functionsNamesList.contains(functionName)) {
-            return getCheckResultWithError("Function name '" + functionName + "' is not valid. It should be one of : " + functionNames, position);
+            return getCheckResultWithError("Function name '" + functionName + "' is not valid. ", position,
+                    "Change the function name. It could be one of (" + functionNames + ")");
         }
         if (position.value() == selector.length()) {
             if (functionName.equals(NTH_CHILD_FUNCTION_NAME)) {
                 return getCheckResultWithError("There must be an a child index in braces after " + NTH_CHILD_FUNCTION_NAME +
-                        " function name", position);
+                        " function name", position, "Add braces and index of child you want to find");
             } else {
                 return getSuccessCheckResult();
             }
@@ -102,30 +106,34 @@ public class CssSelectorChecker implements ISelectorChecker {
         char current = getCurrentChar(selector, position);
         if (functionName.equals(NTH_CHILD_FUNCTION_NAME)) {
             if (!isOpeningBracesElement(current)) {
-                return getCheckResultWithError("There must be an '(' after " + NTH_CHILD_FUNCTION_NAME + " function", position);
+                return getCheckResultWithError("There must be an '(' after " + NTH_CHILD_FUNCTION_NAME + " function", position,
+                        "Add braces and index of child you want to find");
             } else {
                 try {
                     current = getNextChar(selector, position);
                 } catch (EndOfSelector endOfSelector) {
                     return getCheckResultWithError("Selector can't ends with opening braces after'" + NTH_CHILD_FUNCTION_NAME +
-                            "' function name.There must be an index", position);
+                            "' function name.There must be an index", position, "Add index of child and closing braces to your locator");
                 }
 
                 if (!isChildValuePart(current)) {
-                    return getCheckResultWithError("There must be an a digit after '(' in " + NTH_CHILD_FUNCTION_NAME + " function", position);
+                    return getCheckResultWithError("There must be an a number after '(' in " + NTH_CHILD_FUNCTION_NAME + " function", position,
+                            "Change the value in braces to number value or remove space between number and opening braces");
                 }
                 String indexValue = parseChildIndexValue(selector, position);
                 if (indexValue.isEmpty()) {
-                    return getCheckResultWithError("Index of child for function " + NTH_CHILD_FUNCTION_NAME + " can't be empty", position);
+                    return getCheckResultWithError("Index of child for function " + NTH_CHILD_FUNCTION_NAME + " can't be empty", position,
+                            "Add an index - number value - to the braces");
                 }
                 if (position.value() == selector.length()) {
                     return getCheckResultWithError("Selector can't ends with " + NTH_CHILD_FUNCTION_NAME +
-                            " child index without closing braces", position);
+                            " child index without closing braces", position, "Add closing braces after child index");
                 }
                 current = getCurrentChar(selector, position);
                 if (!isClosingBracesElement(current)) {
                     return getCheckResultWithError("There must be closing braces after " +
-                            NTH_CHILD_FUNCTION_NAME + " function index value, no spaces and another digits", position);
+                            NTH_CHILD_FUNCTION_NAME + " function index value, no spaces and another digits", position,
+                            "Remove spaces or unexpected symbols between child index and closing braces.");
                 }
                 try {
                     current = getNextChar(selector, position);
@@ -135,7 +143,8 @@ public class CssSelectorChecker implements ISelectorChecker {
             }
         }
         if (!isWhitespace(current)) {
-            return getCheckResultWithError("There must be a space after function before another element", position);
+            return getCheckResultWithError("There must be a space after function before another element", position,
+                    "Add a space after function name and before another element");
         }
         try {
             skipWhitespaces(selector, position);
@@ -160,7 +169,7 @@ public class CssSelectorChecker implements ISelectorChecker {
         } else if (isFunctionStartElement(current)) {
             return parseFunction(selector, position);
         } else {
-            throw new NotParsebleSelectorException("Not parseble exception");
+            throw new NotParsebleSelectorException("Selector not parsed");
         }
     }
 
@@ -169,21 +178,24 @@ public class CssSelectorChecker implements ISelectorChecker {
         try {
             getNextChar(selector, position);
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Id can't contains only '#'. There should be an identifier", position);
+            return getCheckResultWithError("Id can't contains only '#'. There should be an identifier", position,
+                    "Add an identifier name after '#' symbol");
         }
         char current = getCurrentChar(selector, position);
         if (isWhitespace(current)) {
-            return getCheckResultWithError("There is a space after '#'", position);
+            return getCheckResultWithError("There is a space after '#'", position, "Remove space after '#' symbol");
         } else if (isClassStartCharacter(current)) {
-            return getCheckResultWithError("There is a . after '#'", position);
+            return getCheckResultWithError("There is a . after '#'", position, "Remove '.' after '#' symbol");
         } else if (isOpeningElement(current)) {
-            return getCheckResultWithError("There is a [ after '#'", position);
+            return getCheckResultWithError("There is a [ after '#'", position, "Remove '[' after '#' symbol");
+        } else if (isClosingElement(current)) {
+            return getCheckResultWithError("There is a ] after '#'", position, "Remove ']' after '#' symbol");
         } else if (isIdStartCharacter(current)) {
-            return getCheckResultWithError("There is a # after '#'", position);
+            return getCheckResultWithError("There is a # after '#'", position, "Remove '#' after '#' symbol");
         } else if (isFunctionStartElement(current)) {
-            return getCheckResultWithError("There is a : after '#'", position);
+            return getCheckResultWithError("There is a : after '#'", position, "Remove ':' after '#' symbol");
         } else if (isAnyElementDigit(current)) {
-            return getCheckResultWithError("There is a * after '#'", position);
+            return getCheckResultWithError("There is a * after '#'", position, "Remove '*' after '#' symbol");
         }
         parseSelectorStringPart(selector, position);
         if (position.value() == selector.length()) {
@@ -197,7 +209,8 @@ public class CssSelectorChecker implements ISelectorChecker {
         } else if (isOpeningElement(next)) {
             return parseAttributes(selector, position);
         } else if (isIdStartCharacter(next)) {
-            return getCheckResultWithError("There can't be an id after id without spaces", position);
+            return getCheckResultWithError("There can't be an id after id without spaces", position,
+                    "Add space after first identifier name and before '#' symbol");
         } else if (isWhitespace(next)) {
             try {
                 skipWhitespaces(selector, position);
@@ -206,21 +219,29 @@ public class CssSelectorChecker implements ISelectorChecker {
                     return parseClass(selector, position);
                 } else if (isOpeningElement(current)) {
                     return parseAttributes(selector, position);
-                    //TODO: check all elements after id
-                } else if (isClosingElement(current) ) {
-                    return getCheckResultWithError("There can't be an ']' without '[", position);
+                } else if (isIdStartCharacter(current)) {
+                    return parseId(selector, position);
+                } else if (isClosingElement(current)) {
+                    return getCheckResultWithError("There can't be an ']' without '[", position,
+                            "Remove ']' after identifier or add to locator search by attribute name and value");
                 } else if (isFunctionStartElement(current)) {
-                    return getCheckResultWithError("There can't be an ':' without function name", position);
+                    return getCheckResultWithError("There can't be an ':' without function name", position,
+                            "Remove ':' after identifier or add to locator search with function name");
                 } else if (isOpeningBracesElement(current) || isClosingBracesElement(current)) {
-                    return getCheckResultWithError("There can't be an '(' or ')' without function name", position);
-                } else if (isAttributeValueStrictlyEqualitySymbol(current)){
-                    return getCheckResultWithError("There can't be an '='  without '[' and attribute name", position);
+                    return getCheckResultWithError("There can't be an '(' or ')' without function name", position,
+                            "Remove '(' or ')' after identifier or add to locator search with function name(nth-child)");
+                } else if (isAttributeValueStrictlyEqualitySymbol(current)) {
+                    return getCheckResultWithError("There can't be an '='  without '[' and attribute name", position,
+                            "Remove '='  after identifier. This symbol can be only when searching by attribute name or value(in [ braces)");
                 } else if (isAttributeValueEndsWithSymbol(current)) {
-                    return getCheckResultWithError("There can't be an '$'  without '[' and attribute name", position);
+                    return getCheckResultWithError("There can't be an '$'  without '[' and attribute name", position,
+                            "Remove '$'  after identifier. This symbol can be only when searching by attribute name or value(in [ braces)");
                 } else if (isAttributeValueStartsWithSymbol(current)) {
-                    return getCheckResultWithError("There can't be an '^'  without '[' and attribute name", position);
+                    return getCheckResultWithError("There can't be an '^'  without '[' and attribute name", position,
+                            "Remove '^'  after identifier. This symbol can be only when searching by attribute name or value(in [ braces)");
                 } else if (isSingleQuotSymbol(current)) {
-                    return getCheckResultWithError("There can't be an ' without '[' and attribute name", position);
+                    return getCheckResultWithError("There can't be an ' without '[' and attribute name", position,
+                            "Remove '[' after identifier of add searching by attribute name of value");
                 }
             } catch (EndOfSelector endOfSelector) {
                 getSuccessCheckResult();
@@ -233,19 +254,22 @@ public class CssSelectorChecker implements ISelectorChecker {
         try {
             getNextChar(selector, position);
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Class can't contains only '.'. There should be a class name", position);
+            return getCheckResultWithError("Class can't contains only '.'. There should be a class name", position,
+                    "Add a class name after '.' symbol");
         }
         char current = getCurrentChar(selector, position);
         if (isWhitespace(current)) {
-            return getCheckResultWithError("There is a space after '.'", position);
+            return getCheckResultWithError("There is a space after '.'", position, "Remove space after '.' symbol");
         } else if (isClassStartCharacter(current)) {
-            return getCheckResultWithError("There is a . after '.'", position);
+            return getCheckResultWithError("There is a . after '.'", position, "Remove '.' after '.' symbol");
         } else if (isOpeningElement(current)) {
-            return getCheckResultWithError("There is a [ after '.'", position);
+            return getCheckResultWithError("There is a [ after '.'", position, "Remove '[' after '.' symbol");
+        } else if (isClosingElement(current)) {
+            return getCheckResultWithError("There is a [ after '.'", position, "Remove ']' after '.' symbol");
         } else if (isIdStartCharacter(current)) {
-            return getCheckResultWithError("There is a # after '.'", position);
+            return getCheckResultWithError("There is a # after '.'", position, "Remove '#' after '.' symbol");
         } else if (isFunctionStartElement(current)) {
-            return getCheckResultWithError("There is a : after '.'", position);
+            return getCheckResultWithError("There is a : after '.'", position, "Remove ':' after '.' symbol");
         }
         parseClassValue(selector, position);
         if (position.value() == selector.length()) {
@@ -266,20 +290,30 @@ public class CssSelectorChecker implements ISelectorChecker {
                     return parseClass(selector, position);
                 } else if (isOpeningElement(current)) {
                     return parseAttributes(selector, position);
-                } if (isClosingElement(current) ) {
-                    return getCheckResultWithError("There can't be an ']' without '[", position);
+                } else if (isIdStartCharacter(current)) {
+                    return parseId(selector, position);
+                }
+                if (isClosingElement(current)) {
+                    return getCheckResultWithError("There can't be an ']' without '[", position,
+                            "Remove ']' after class name or add to locator search by attribute name and value");
                 } else if (isFunctionStartElement(current)) {
-                    return getCheckResultWithError("There can't be an ':' without function name", position);
+                    return getCheckResultWithError("There can't be an ':' without function name", position,
+                            "Remove ':' after class name or add to locator search with function name");
                 } else if (isOpeningBracesElement(current) || isClosingBracesElement(current)) {
-                    return getCheckResultWithError("There can't be an '(' or ')' without function name", position);
-                } else if (isAttributeValueStrictlyEqualitySymbol(current)){
-                    return getCheckResultWithError("There can't be an '='  without '[' and attribute name", position);
+                    return getCheckResultWithError("There can't be an '(' or ')' without function name", position,
+                            "Remove '(' or ')' after class name or add to locator search with function name(nth-child)");
+                } else if (isAttributeValueStrictlyEqualitySymbol(current)) {
+                    return getCheckResultWithError("There can't be an '='  without '[' and attribute name", position,
+                            "Remove '='  after class name. This symbol can be only when searching by attribute name or value(in [ braces)");
                 } else if (isAttributeValueEndsWithSymbol(current)) {
-                    return getCheckResultWithError("There can't be an '$'  without '[' and attribute name", position);
+                    return getCheckResultWithError("There can't be an '$'  without '[' and attribute name", position,
+                            "Remove '$'  after class name. This symbol can be only when searching by attribute name or value(in [ braces)");
                 } else if (isAttributeValueStartsWithSymbol(current)) {
-                    return getCheckResultWithError("There can't be an '^'  without '[' and attribute name", position);
+                    return getCheckResultWithError("There can't be an '^'  without '[' and attribute name", position,
+                            "Remove '^'  after class name. This symbol can be only when searching by attribute name or value(in [ braces)");
                 } else if (isSingleQuotSymbol(current)) {
-                    return getCheckResultWithError("There can't be an ' without '[' and attribute name", position);
+                    return getCheckResultWithError("There can't be an ' without '[' and attribute name", position,
+                            "Remove '[' after class name of add searching by attribute name of value");
                 }
             } catch (EndOfSelector endOfSelector) {
                 getSuccessCheckResult();
@@ -309,7 +343,8 @@ public class CssSelectorChecker implements ISelectorChecker {
             return parseClass(selector, position);
         } else if (isFunctionStartElement(current)) {
             if (hasWhitespace) {
-                return getCheckResultWithError("There can't be space between tag name and ':' function start symbol", position);
+                return getCheckResultWithError("There can't be space between tag name and ':' function start symbol", position,
+                        "Remove space between tag name and ':' symbol");
             }
             return parseFunction(selector, position);
         } else if (isOpeningElement(current)) {
@@ -320,22 +355,31 @@ public class CssSelectorChecker implements ISelectorChecker {
             return parseAnyElementDigit(selector, position);
         } else if (isTagNameStartCharacter(current)) {
             return parseStartTag(selector, position);
-        } if (isClosingElement(current) ) {
-            return getCheckResultWithError("There can't be an ']' without '[", position);
+        }
+
+        if (isClosingElement(current)) {
+            return getCheckResultWithError("There can't be an ']' without '[", position,
+                    "Remove ']' after tag name or add to locator search by attribute name and value");
         } else if (isFunctionStartElement(current)) {
-            return getCheckResultWithError("There can't be an ':' without function name", position);
+            return getCheckResultWithError("There can't be an ':' without function name", position,
+                    "Remove ':' after tag name or add to locator search with function name");
         } else if (isOpeningBracesElement(current) || isClosingBracesElement(current)) {
-            return getCheckResultWithError("There can't be an '(' or ')' without function name", position);
-        } else if (isAttributeValueStrictlyEqualitySymbol(current)){
-            return getCheckResultWithError("There can't be an '='  without '[' and attribute name", position);
+            return getCheckResultWithError("There can't be an '(' or ')' without function name", position,
+                    "Remove '(' or ')' tag class name or add to locator search with function name(nth-child)");
+        } else if (isAttributeValueStrictlyEqualitySymbol(current)) {
+            return getCheckResultWithError("There can't be an '='  without '[' and attribute name", position,
+                    "Remove '='  after tag name. This symbol can be only when searching by attribute name or value(in [ braces)");
         } else if (isAttributeValueEndsWithSymbol(current)) {
-            return getCheckResultWithError("There can't be an '$'  without '[' and attribute name", position);
+            return getCheckResultWithError("There can't be an '$'  without '[' and attribute name", position,
+                    "Remove '$'  after tag name. This symbol can be only when searching by attribute name or value(in [ braces)");
         } else if (isAttributeValueStartsWithSymbol(current)) {
-            return getCheckResultWithError("There can't be an '^'  without '[' and attribute name", position);
+            return getCheckResultWithError("There can't be an '^'  without '[' and attribute name", position,
+                    "Remove '^'  after tag name. This symbol can be only when searching by attribute name or value(in [ braces)");
         } else if (isSingleQuotSymbol(current)) {
-            return getCheckResultWithError("There can't be an ' without '[' and attribute name", position);
+            return getCheckResultWithError("There can't be an ' without '[' and attribute name", position,
+                    "Remove '[' after tag name of add searching by attribute name of value");
         } else {
-            throw new NotParsebleSelectorException("Not parseble exception");
+            throw new NotParsebleSelectorException("Selector not parsed");
         }
     }
 
@@ -348,20 +392,24 @@ public class CssSelectorChecker implements ISelectorChecker {
                 skipWhitespaces(selector, position);
             }
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Selector can't contains only '['. There should be an attribute name", position);
+            return getCheckResultWithError("Selector can't contains only '['. There should be an attribute name", position,
+                    "Add an attribute name after '[' symbol");
         }
 
         current = getCurrentChar(selector, position);
         if (isClassStartCharacter(current)) {
-            return getCheckResultWithError("There is a . after '['", position);
+            return getCheckResultWithError("There is a . after '['", position, "Remove '.' after '[' symbol");
         } else if (isOpeningElement(current)) {
-            return getCheckResultWithError("There is a [ after '['", position);
+            return getCheckResultWithError("There is a [ after '['", position, "Remove '[' after '[' symbol");
         } else if (isIdStartCharacter(current)) {
-            return getCheckResultWithError("There is a # after '['", position);
+            return getCheckResultWithError("There is a # after '['", position, "Remove '#' after '[' symbol");
+        } else if (isOpeningBracesElement(current) || isClosingBracesElement(current)) {
+            return getCheckResultWithError("There is a braces after '['", position, "Remove braces after '[' symbol");
         }
         String attributeName = parseSelectorAttributeName(selector, position);
         if (position.value() == selector.length()) {
-            return getCheckResultWithError("Selector can't ends with attribute name. It should contain value and ']' symbol after.", position);
+            return getCheckResultWithError("Selector can't ends with attribute name. It should contain value and ']' symbol after.", position,
+                    "Add an equality symbol(=,$=,^=,*=) and attribute value after attribute name");
         }
         current = getCurrentChar(selector, position);
         try {
@@ -369,21 +417,26 @@ public class CssSelectorChecker implements ISelectorChecker {
                 skipWhitespaces(selector, position);
             }
         } catch (EndOfSelector endOfSelector) {
-            return getCheckResultWithError("Selector can't ends with attribute name. It should contain value and ']' symbol after.", position);
+            return getCheckResultWithError("Selector can't ends with attribute name. It should contain value and ']' symbol after.", position,
+                    "Add an equality symbol(=,$=,^=,*=) and attribute value after attribute name");
         }
         current = getCurrentChar(selector, position);
         if (!isAttributeValueStrictlyEqualitySymbol(current) && !isAttributeValueNotStrictlyEqualitySymbol(current)) {
-            return getCheckResultWithError("Unexpected symbol after attribute name. There should be one of these after name :'=', '*', '^', '$'", position);
+            return getCheckResultWithError("Unexpected symbol after attribute name. There should be one of these after name :'=', '*', '^', '$'", position,
+                    "Remove unexpected symbol and insert one of these symbols:\n1)'=' - attribute value equals\n2)'*=' - attribute value contains\n" +
+                            "3)'^=' - attribute value starts with\n4)'$=' - attribute value ends with");
         }
         if (isAttributeValueNotStrictlyEqualitySymbol(current)) {
             try {
                 current = getNextChar(selector, position);
             } catch (EndOfSelector endOfSelector) {
-                return getCheckResultWithError("Selector can't ends with '*', '^' or '$'", position);
+                return getCheckResultWithError("Selector can't ends with '*', '^' or '$'", position,
+                        "Add '=', attribute value and '] after *,^ or $ symbol");
             }
         }
         if (!isAttributeValueStrictlyEqualitySymbol(current)) {
-            return getCheckResultWithError("There must be an '=' after symbols '*', '^' or '$'", position);
+            return getCheckResultWithError("There must be an '=' after symbols '*', '^' or '$'", position,
+                    "Add '=' after *,^ or $ symbol");
         }
 
         try {
@@ -392,31 +445,36 @@ public class CssSelectorChecker implements ISelectorChecker {
                 skipWhitespaces(selector, position);
             }
         } catch (EndOfSelector endOfSelector) {
-            return getCheckResultWithError("Selector can't ends with '=' after attribute name. There must be a value", position);
+            return getCheckResultWithError("Selector can't ends with '=' after attribute name. There must be a value", position,
+                    "Add attribute value it single quotes after '=' symbol(if attribute is not 'name')");
         }
         current = getCurrentChar(selector, position);
         if (!isSingleQuotSymbol(current)) {
             if (!attributeName.equals(ATTRIBUTE_VALUE_NAME)) {
-                return getCheckResultWithError("There must be a single quot after '=' if attribute not a '" + ATTRIBUTE_VALUE_NAME + "'", position);
+                return getCheckResultWithError("There must be a single quot after '=' if attribute not a '" + ATTRIBUTE_VALUE_NAME + "'", position,
+                        "Add single quot after '=' symbol(if attribute is not 'name')");
             }
         } else {
             try {
                 getNextChar(selector, position);
             } catch (EndOfSelector endOfSelector) {
-                return getCheckResultWithError("Selector can't ends with ' symbol after '='. There must be an attribute value", position);
+                return getCheckResultWithError("Selector can't ends with ' symbol after '='. There must be an attribute value", position,
+                        "Add an attribute value with closing single quot(if attribute is not 'name') and ']' symbol after");
             }
         }
         String attributeValue = parseSelectorAttributeValue(selector, position);
         if (attributeValue.isEmpty()) {
-            return getCheckResultWithError("Attribute value can't be empty", position);
+            return getCheckResultWithError("Attribute value can't be empty", position, "Add a value to attribute (between single quotes)");
         }
         if (position.value() == selector.length()) {
-            return getCheckResultWithError("Selector can't ends attribute value. It should contain  close ']'(if attribute is '" + ATTRIBUTE_VALUE_NAME + "') or ' '] ' symbol after.", position);
+            return getCheckResultWithError("Selector can't ends attribute value. It should contain  close ']'(if attribute is '" + ATTRIBUTE_VALUE_NAME + "') or ' '] ' symbol after.", position,
+                    "Add single closing quot(if attribute is not 'name') and closing ']' symbol after attribute value");
         }
         current = getCurrentChar(selector, position);
         if (!isSingleQuotSymbol(current)) {
             if (!attributeName.equals(ATTRIBUTE_VALUE_NAME)) {
-                return getCheckResultWithError("There must be a single quot after attribute value if attribute not a '" + ATTRIBUTE_VALUE_NAME + "'", position);
+                return getCheckResultWithError("There must be a single quot after attribute value if attribute not a '" + ATTRIBUTE_VALUE_NAME + "'", position,
+                        "Add single quot after attribute value(ig attribute is not 'name')");
             }
 
         } else {
@@ -426,12 +484,14 @@ public class CssSelectorChecker implements ISelectorChecker {
                     skipWhitespaces(selector, position);
                 }
             } catch (EndOfSelector endOfSelector) {
-                return getCheckResultWithError("Selector can't ends with ' symbol after attribute value. It should have ']' symbol after", position);
+                return getCheckResultWithError("Selector can't ends with ' symbol after attribute value. It should have ']' symbol after", position,
+                        "Add ']' after closing attribute value quot");
             }
         }
         current = getCurrentChar(selector, position);
         if (!isClosingElement(current)) {
-            return getCheckResultWithError("There must be an a ']' after attribute value", position);
+            return getCheckResultWithError("There must be an a ']' after attribute value", position,
+                    "Add ']' after closing attribute value ");
         }
         boolean hasWhiteSpace = false;
         try {
@@ -457,15 +517,19 @@ public class CssSelectorChecker implements ISelectorChecker {
             } else if (isOpeningElement(current)) {
                 return parseAttributes(selector, position);
             } else if (isFunctionStartElement(current)) {
-                return getCheckResultWithError("There can't be : after whitespace. ", position);
+                return getCheckResultWithError("There can't be : after whitespace after ]. ", position,
+                        "Remove ':' after ']' symbol or add locator for function after ':'");
+            } else if (isClosingElement(current)) {
+                return getCheckResultWithError("There can't be ] after whitespace after ]. ", position,
+                        "Remove ':' after ']' symbol ");
             }
         } else {
             if (isClassStartCharacter(current)) {
-                return getCheckResultWithError("There can't be . as next symbol after ']'", position);
+                return getCheckResultWithError("There can't be . as next symbol after ']'", position, "Add space between ']' and '.'");
             } else if (isIdStartCharacter(current)) {
-                return getCheckResultWithError("There can't be # as next symbol after ']'", position);
+                return getCheckResultWithError("There can't be # as next symbol after ']'", position, "Add space between '#' and '.'");
             } else if (isTagNameStartCharacter(current)) {
-                return getCheckResultWithError("There can't be tag name after symbol after ']' without space", position);
+                return getCheckResultWithError("There can't be tag name after symbol after ']' without space", position, "Add space between ']' and '.'");
             } else if (isFunctionStartElement(current)) {
                 return parseFunction(selector, position);
             }
@@ -535,9 +599,10 @@ public class CssSelectorChecker implements ISelectorChecker {
     }
 
 
-    private CheckResult getCheckResultWithError(String errorMessage, Position position) {
+    private CheckResult getCheckResultWithError(String errorMessage, Position position, String fixVariant) {
         CheckResult checkResult = new CheckResult(false, errorMessage);
         checkResult.setPosition(position.value());
+        checkResult.setFixVariant(fixVariant);
         return checkResult;
     }
 

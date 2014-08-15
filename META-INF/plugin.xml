@@ -47,10 +47,6 @@
           <add-to-group group-id="EditorActions" anchor="last"/>
           <keyboard-shortcut keymap="$default" first-keystroke="meta S"/>
       </action>
-      <group id="MyPlugin.SampleMenu" text="_Sample Menu" description="Sample menu">
-          <add-to-group group-id="MainMenu" anchor="last"  />
-          <action id="Myplugin.Textboxes" class="com.unknown.seleniumplugin.CodeExamples" text="Text _Boxes" description="A test menu item" />
-      </group>
       <action id="generateWebElement" class="com.unknown.seleniumplugin.generatefield.actions.GenerateWebElementAction" text="Web Element(s)"
               description="Generates the Selenium Web element field">
           <add-to-group group-id="GenerateGroup" anchor="last"/>

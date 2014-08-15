@@ -15,12 +15,12 @@ public class ClassNameSelectorChecker implements ISelectorChecker {
     public CheckResult checkSelectorValid(String selector) throws NotParsebleSelectorException {
         Position position = new Position();
         if (selector.isEmpty()) {
-            return getCheckResultWithError("Selector can't be empty", position);
+            return getCheckResultWithError("Selector can't be empty", position, "Add an class name value");
         }
         try {
             skipWhitespaces(selector, position);
         } catch (EndOfSelector e) {
-            return getCheckResultWithError("Selector can't be empty", position);
+            return getCheckResultWithError("Selector can't be empty", position, "Add an class name value");
         }
         char current = getCurrentChar(selector, position);
         if(isClassNamePart(current)) {
@@ -32,14 +32,16 @@ public class ClassNameSelectorChecker implements ISelectorChecker {
             if (isWhitespace(current)) {
                 try {
                     skipWhitespaces(selector, position);
-                    return getCheckResultWithError("There can't be any symbol after class name and spaces", position);
+                    return getCheckResultWithError("There can't be any symbol after class name and spaces", position,
+                            "Delete all symbols after class name");
                 } catch (EndOfSelector endOfSelector) {
                     return getSuccessCheckResult();
                 }
             }
 
         } else {
-            return getCheckResultWithError("Class name value not starts with valid symbol", position);
+            return getCheckResultWithError("Class name value not starts with valid symbol", position,
+                    "Class name can start only with number or letter");
         }
 
         return null;
@@ -90,9 +92,10 @@ public class ClassNameSelectorChecker implements ISelectorChecker {
     }
 
 
-    private CheckResult getCheckResultWithError(String errorMessage, Position position) {
+    private CheckResult getCheckResultWithError(String errorMessage, Position position, String fixVariant) {
         CheckResult checkResult = new CheckResult(false, errorMessage);
         checkResult.setPosition(position.value());
+        checkResult.setFixVariant(fixVariant);
         return checkResult;
     }
 

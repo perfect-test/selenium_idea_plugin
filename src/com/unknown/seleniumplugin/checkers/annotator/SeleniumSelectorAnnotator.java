@@ -1,10 +1,12 @@
 package com.unknown.seleniumplugin.checkers.annotator;
 
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.lang.annotation.Annotation;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
+import com.unknown.seleniumplugin.checkers.quickfix.SelectorVariantsQuickFix;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.CheckResult;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.ISelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.NotParsebleSelectorException;
@@ -13,6 +15,7 @@ import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.css.CssSelecto
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.id.IDSelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.tagname.TagNameSelectorChecker;
 import com.unknown.seleniumplugin.domain.SelectorMethodValue;
+import com.unknown.seleniumplugin.elementscheckers.existancechecker.quickfix.CheckExistenceDialogQuickFix;
 import com.unknown.seleniumplugin.settings.SeleniumSettingsParams;
 import com.unknown.seleniumplugin.utils.AnnotationChecker;
 import com.unknown.seleniumplugin.utils.AnnotationsUtils;
@@ -75,7 +78,9 @@ public class SeleniumSelectorAnnotator implements Annotator {
                 int startOffset = element.getTextRange().getStartOffset() + checkResult.getPosition();
                 int endOffset = startOffset + 2;
                 TextRange range = new TextRange(startOffset, endOffset);
-                holder.createErrorAnnotation(range, checkResult.getMessage());
+                Annotation annotation = holder.createErrorAnnotation(range, checkResult.getMessage());
+                annotation.registerFix(new CheckExistenceDialogQuickFix());
+                annotation.registerFix(new SelectorVariantsQuickFix(selectorChecker));
             }
         } catch (NotParsebleSelectorException e) {
             TextRange range = new TextRange(element.getTextRange().getStartOffset(),
