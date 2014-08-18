@@ -83,7 +83,7 @@ public class SeleniumPropertiesReader {
         return attributesSelectorVariants;
     }
 
-    private static List<String> getAttributesValuesList() {
+    public static List<String> getAttributesValuesList() {
         if (attributesVariants == null) {
             attributesVariants = new ArrayList<String>();
             String attributes = selectorProperties.getProperty(ATTRIBUTES_PROPERTY_NAME);

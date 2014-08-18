@@ -8,6 +8,7 @@ import com.intellij.psi.PsiNameValuePair;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import com.unknown.seleniumplugin.codecomplete.generators.ICompletionVariantsGenerator;
+import com.unknown.seleniumplugin.codecomplete.generators.impl.TagNameCompletionVariantsGenerator;
 import com.unknown.seleniumplugin.codecomplete.generators.impl.CssCompletionVariantsGenerator;
 import com.unknown.seleniumplugin.codecomplete.inserthandlers.ISeleniumInsertHandler;
 import com.unknown.seleniumplugin.codecomplete.inserthandlers.impl.CssInsertHandler;
@@ -27,6 +28,7 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 public class SelectorCompletionContributor extends CompletionContributor {
     private static final ISeleniumInsertHandler CSS_INSERT_HANDLER = new CssInsertHandler();
     private static final ICompletionVariantsGenerator CSS_COMPLETION_VARIANTS_GENERATOR = new CssCompletionVariantsGenerator();
+    private static final ICompletionVariantsGenerator TAG_NAME_COMPLETION_VARIANTS_GENERATOR = new TagNameCompletionVariantsGenerator();
 
     public SelectorCompletionContributor() {
         extend(CompletionType.BASIC, psiElement(), new CompletionProvider<CompletionParameters>() {
@@ -85,6 +87,9 @@ public class SelectorCompletionContributor extends CompletionContributor {
                 switch (selectorMethodValue) {
                     case CSS:
                         completionVariantsGenerator = CSS_COMPLETION_VARIANTS_GENERATOR;
+                        break;
+                    case TAG_NAME:
+                        completionVariantsGenerator = TAG_NAME_COMPLETION_VARIANTS_GENERATOR;
                         break;
                     default:
                         //do nothing
