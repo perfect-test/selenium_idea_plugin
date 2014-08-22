@@ -19,8 +19,11 @@ public class SeleniumPropertiesReader {
     private static final String ATTRIBUTE_PATTERN_PROPERTY_NAME = "attributes.elements.patterns";
     private static final String ATTRIBUTES_PROPERTY_NAME = "attributes";
     private static final String FUNCTIONS_PROPERTY_NAME = "functions";
+    private static final String XPATH_FUNCTIONS_PROPERTY_NAME = "xpath.functions";
     private static final String PATH_TO_PROPERTIES_FILE = "properties/selector_parts.properties";
     private static final String ATTRIBUTE_VALUE_REPLACE_PARAM = "{attribute_name}";
+    private static final String XPATH_EQUALITY_FUNCTIONS_PROPERTY_NAME = "xpath.equality.functions";
+    private static final String XPATH_FUNCTION_PARAM_NAME = "fn";
 
     private static List<String> attributesVariants;
     private static List<String> tagsVariants;
@@ -29,6 +32,9 @@ public class SeleniumPropertiesReader {
     private static List<String> attributePatterns;
     private static List<String> attributesSelectorVariants;
     private static List<String> functionsVariants;
+    private static List<String> xpathFunctions;
+    private static List<String> xpathEqualityFunctions;
+
 
     private static final Properties selectorProperties;
 
@@ -45,6 +51,7 @@ public class SeleniumPropertiesReader {
 
     }
 
+
     public static List<String> getAllTags() {
         if (tagsVariants == null) {
             tagsVariants = new ArrayList<String>();
@@ -56,6 +63,27 @@ public class SeleniumPropertiesReader {
         }
         return tagsVariants;
     }
+
+    public static List<String> getXpathFunctions() {
+        if (xpathFunctions == null) {
+            xpathFunctions = new ArrayList<String>();
+            String functionsString = selectorProperties.getProperty(XPATH_FUNCTIONS_PROPERTY_NAME);
+            if (functionsString != null) {
+                functionsString = functionsString.replaceAll(XPATH_FUNCTION_PARAM_NAME, "").replaceAll(":", "");
+                String[] variants = functionsString.split(",");
+                Collections.addAll(xpathFunctions, variants);
+            }
+            functionsString = selectorProperties.getProperty(XPATH_EQUALITY_FUNCTIONS_PROPERTY_NAME);
+            if (functionsString != null) {
+                functionsString = functionsString.replaceAll(XPATH_FUNCTION_PARAM_NAME, "").replaceAll(":", "");
+                String[] variants = functionsString.split(",");
+                Collections.addAll(xpathFunctions, variants);
+            }
+
+        }
+        return xpathFunctions;
+    }
+
 
     public static List<String> getSeleniumStartElements() {
         if (fullStartElementsVariants == null) {
@@ -121,7 +149,7 @@ public class SeleniumPropertiesReader {
     }
 
     public static List<String> getFunctions() {
-        if(functionsVariants == null) {
+        if (functionsVariants == null) {
             functionsVariants = new ArrayList<String>();
             String functionsValuesString = selectorProperties.getProperty(FUNCTIONS_PROPERTY_NAME);
             if (functionsValuesString != null) {
@@ -130,5 +158,18 @@ public class SeleniumPropertiesReader {
             }
         }
         return functionsVariants;
+    }
+
+    public static List<String> getXpathEqualityFunctions() {
+        if (xpathEqualityFunctions == null) {
+            xpathEqualityFunctions = new ArrayList<String>();
+            String functionsString = selectorProperties.getProperty(XPATH_EQUALITY_FUNCTIONS_PROPERTY_NAME);
+            if (functionsString != null) {
+                functionsString = functionsString.replaceAll(XPATH_FUNCTION_PARAM_NAME, "").replaceAll(":", "");
+                String[] variants = functionsString.split(",");
+                Collections.addAll(xpathEqualityFunctions, variants);
+            }
+        }
+        return xpathEqualityFunctions;
     }
 }

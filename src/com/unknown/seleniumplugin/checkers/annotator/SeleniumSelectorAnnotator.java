@@ -14,6 +14,7 @@ import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.classnamecheck
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.css.CssSelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.id.IDSelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.tagname.TagNameSelectorChecker;
+import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.xpath.XpathSelectorChecker;
 import com.unknown.seleniumplugin.domain.SelectorMethodValue;
 import com.unknown.seleniumplugin.elementscheckers.existancechecker.quickfix.CheckExistenceDialogQuickFix;
 import com.unknown.seleniumplugin.settings.SeleniumSettingsParams;
@@ -29,6 +30,7 @@ public class SeleniumSelectorAnnotator implements Annotator {
     private static final ISelectorChecker ID_SELECTOR_CHECKER = new IDSelectorChecker();
     private static final ISelectorChecker TAG_NAME_SELECTOR_CHECKER = new TagNameSelectorChecker();
     private static final ISelectorChecker CLASS_NAME_SELECTOR_CHECKER = new ClassNameSelectorChecker();
+    private static final ISelectorChecker XPATH_SELECTOR_CHECKER = new XpathSelectorChecker();
     private ISelectorChecker selectorChecker;
 
 
@@ -108,6 +110,9 @@ public class SeleniumSelectorAnnotator implements Annotator {
                         break;
                     case CLASS_NAME:
                         selectorChecker = CLASS_NAME_SELECTOR_CHECKER;
+                        break;
+                    case XPATH:
+                        selectorChecker = XPATH_SELECTOR_CHECKER;
                         break;
                     default:
                         //do nothing
