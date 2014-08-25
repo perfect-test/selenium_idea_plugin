@@ -28,7 +28,7 @@ public class CheckElementExistenceDialog extends DialogWrapper {
     private JButton checkButton;
     private JLabel statusTextField;
     private JTextField locatorValueTextField;
-    private JTextField locatorMethodTextField;
+    private JLabel locatorMethodTextField;
     private JButton saveNewValueButton;
     private String locator;
     private String findMethod;

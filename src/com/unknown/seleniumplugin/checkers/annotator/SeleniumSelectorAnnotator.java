@@ -38,7 +38,63 @@ public class SeleniumSelectorAnnotator implements Annotator {
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
         if (element instanceof PsiAnnotation) {
             checkAnnotation(element, holder);
+        } else if (element instanceof PsiMethodCallExpression) {
+            if (isByReference(element)) {
+                checkByExpression(element, holder);
+            }
+
         }
+    }
+
+
+    private boolean isByReference(PsiElement element) {
+        return element.getText().startsWith("By");
+    }
+
+    private void checkByExpression(PsiElement element, AnnotationHolder holder) {
+        PsiMethodCallExpression callExpression = (PsiMethodCallExpression) element;
+        PropertiesComponent properties = PropertiesComponent.getInstance(element.getProject());
+        if (properties.isValueSet(SeleniumSettingsParams.IS_SELECTOR_CHECK_ENABLED)) {
+            boolean isCheckEnabled = properties.isTrueValue(SeleniumSettingsParams.IS_SELECTOR_CHECK_ENABLED);
+            if (isCheckEnabled) {
+                PsiElement selectorValueElement = getSelectorValueFromExpression(callExpression);
+                SelectorMethodValue findMethod = getFindMethodFromExpressionText(callExpression.getText());
+                if (findMethod != null && selectorValueElement != null) {
+                    setSelectorChecker(findMethod);
+                    String selectorValue = replaceUnnecessarySymbols(selectorValueElement.getText());
+                    System.out.println("Expression value : " + findMethod + " : " + selectorValue);
+                    checkError(selectorValue, selectorValueElement, holder);
+                }
+            }
+        }
+    }
+
+    private String replaceUnnecessarySymbols(String selectorValue) {
+        return selectorValue.replaceAll("\"", "");
+    }
+
+    private PsiElement getSelectorValueFromExpression(PsiElement psiElement) {
+        PsiElement[] children = psiElement.getChildren();
+        for (PsiElement child : children) {
+            if (child instanceof PsiLiteralExpression) {
+                return child;
+            } else {
+                PsiElement subChildValue = getSelectorValueFromExpression(child);
+                if (subChildValue != null) {
+                    return subChildValue;
+                }
+            }
+        }
+        return null;
+    }
+
+    private SelectorMethodValue getFindMethodFromExpressionText(String text) {
+        for (SelectorMethodValue selectorMethodValue : SelectorMethodValue.values()) {
+            if (text.contains(selectorMethodValue.getSelectorMethod())) {
+                return selectorMethodValue;
+            }
+        }
+        return null;
     }
 
     private void checkAnnotation(PsiElement element, AnnotationHolder holder) {
@@ -54,7 +110,7 @@ public class SeleniumSelectorAnnotator implements Annotator {
                         PsiNameValuePair[] nameValuePairs = annotation.getParameterList().getAttributes();
                         if (nameValuePairs.length > 0) {
                             for (PsiNameValuePair nameValuePair : nameValuePairs) {
-                                setSelectorChecker(nameValuePair);
+                                setSelectorCheckerForPair(nameValuePair);
                                 if (selectorChecker != null) {
                                     PsiAnnotationMemberValue nameValuePairValue = nameValuePair.getValue();
                                     if (nameValuePairValue != null) {
@@ -74,53 +130,62 @@ public class SeleniumSelectorAnnotator implements Annotator {
     }
 
     private void checkError(String value, PsiElement element, AnnotationHolder holder) {
-        try {
-            CheckResult checkResult = selectorChecker.checkSelectorValid(value);
-            if (!checkResult.isResultSuccess()) {
-                int startOffset = element.getTextRange().getStartOffset() + checkResult.getPosition();
-                int endOffset = startOffset + 2;
-                TextRange range = new TextRange(startOffset, endOffset);
-                Annotation annotation = holder.createErrorAnnotation(range, checkResult.getMessage());
-                annotation.registerFix(new CheckExistenceDialogQuickFix());
-                annotation.registerFix(new SelectorVariantsQuickFix(selectorChecker));
-            }
-        } catch (NotParsebleSelectorException e) {
+        if(selectorChecker == null) {
             TextRange range = new TextRange(element.getTextRange().getStartOffset(),
                     element.getTextRange().getEndOffset());
-            holder.createWarningAnnotation(range, "Not parseble selector");
-        } finally {
-            selectorChecker = null;
+            holder.createWarningAnnotation(range, "This type of locator not supported");
+        } else {
+            try {
+                CheckResult checkResult = selectorChecker.checkSelectorValid(value);
+                if (!checkResult.isResultSuccess()) {
+                    int startOffset = element.getTextRange().getStartOffset() + checkResult.getPosition();
+                    int endOffset = startOffset + 2;
+                    TextRange range = new TextRange(startOffset, endOffset);
+                    Annotation annotation = holder.createErrorAnnotation(range, checkResult.getMessage());
+                    annotation.registerFix(new CheckExistenceDialogQuickFix());
+                    annotation.registerFix(new SelectorVariantsQuickFix(selectorChecker));
+                }
+            } catch (NotParsebleSelectorException e) {
+                TextRange range = new TextRange(element.getTextRange().getStartOffset(),
+                        element.getTextRange().getEndOffset());
+                holder.createWarningAnnotation(range, "Not parseble selector");
+            } finally {
+                selectorChecker = null;
+            }
         }
     }
 
-    private void setSelectorChecker(PsiNameValuePair nameValuePair) {
+    private void setSelectorCheckerForPair(PsiNameValuePair nameValuePair) {
         String name = nameValuePair.getName();
         if (name != null) {
             SelectorMethodValue selectorMethodValue = SelectorMethodValue.getByText(name);
             if (selectorMethodValue != null) {
-                switch (selectorMethodValue) {
-                    case CSS:
-                        selectorChecker = CSS_SELECTOR_CHECKER;
-                        break;
-                    case ID:
-                        selectorChecker = ID_SELECTOR_CHECKER;
-                        break;
-                    case TAG_NAME:
-                        selectorChecker = TAG_NAME_SELECTOR_CHECKER;
-                        break;
-                    case CLASS_NAME:
-                        selectorChecker = CLASS_NAME_SELECTOR_CHECKER;
-                        break;
-                    case XPATH:
-                        selectorChecker = XPATH_SELECTOR_CHECKER;
-                        break;
-                    default:
-                        //do nothing
-                        break;
-                }
+                setSelectorChecker(selectorMethodValue);
             }
         }
+    }
 
+    private void setSelectorChecker(SelectorMethodValue methodValue) {
+        switch (methodValue) {
+            case CSS:
+                selectorChecker = CSS_SELECTOR_CHECKER;
+                break;
+            case ID:
+                selectorChecker = ID_SELECTOR_CHECKER;
+                break;
+            case TAG_NAME:
+                selectorChecker = TAG_NAME_SELECTOR_CHECKER;
+                break;
+            case CLASS_NAME:
+                selectorChecker = CLASS_NAME_SELECTOR_CHECKER;
+                break;
+            case XPATH:
+                selectorChecker = XPATH_SELECTOR_CHECKER;
+                break;
+            default:
+                //do nothing
+                break;
+        }
     }
 
 }
