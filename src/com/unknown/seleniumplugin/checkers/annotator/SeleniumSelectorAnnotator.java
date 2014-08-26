@@ -142,8 +142,8 @@ public class SeleniumSelectorAnnotator implements Annotator {
                     int endOffset = startOffset + 2;
                     TextRange range = new TextRange(startOffset, endOffset);
                     Annotation annotation = holder.createErrorAnnotation(range, checkResult.getMessage());
-                    annotation.registerFix(new CheckExistenceDialogQuickFix());
-                    annotation.registerFix(new SelectorVariantsQuickFix(selectorChecker));
+                    annotation.registerFix(new CheckExistenceDialogQuickFix(selectorChecker, value, element));
+                    annotation.registerFix(new SelectorVariantsQuickFix(selectorChecker, value, element));
                 }
             } catch (NotParsebleSelectorException e) {
                 TextRange range = new TextRange(element.getTextRange().getStartOffset(),

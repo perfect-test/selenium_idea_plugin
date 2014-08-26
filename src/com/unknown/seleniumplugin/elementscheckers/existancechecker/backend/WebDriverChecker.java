@@ -16,15 +16,14 @@ import java.util.List;
 public class WebDriverChecker {
 
     public static CheckElementExistenceResult checkElementExist(String urlTextFieldText, String locatorValueTextFieldText,
-                                                                String locatorMethodTextFieldText,
-                                                                boolean isMultiElements)  {
+                                                                String locatorMethodTextFieldText) {
         HttpResponse response = HttpUtils.sendGetRequest(urlTextFieldText);
-        if(response == null) {
+        if (response == null) {
             return new CheckElementExistenceResult("Url not valid - no response", false);
         }
         int code = HttpUtils.getResponseCode(response);
-        if(!HttpUtils.isCodeGood(code)) {
-            return new CheckElementExistenceResult("Url returns not valid code("+ code+")", false);
+        if (!HttpUtils.isCodeGood(code)) {
+            return new CheckElementExistenceResult("Url returns not valid code(" + code + ")", false);
         }
         WebDriver driver = null;
         try {
@@ -58,11 +57,9 @@ public class WebDriverChecker {
                 List<WebElement> webElements = driver.findElements(by);
                 System.out.println("Size of elements : " + webElements.size());
                 CheckElementExistenceResult result = new CheckElementExistenceResult();
-                if(!webElements.isEmpty()) {
+                if (!webElements.isEmpty()) {
                     result.setFound(true);
-                    if(isMultiElements) {
-                        result.setElementsCount(webElements.size());
-                    }
+                    result.setElementsCount(webElements.size());
                 }
                 driver.quit();
                 return result;
@@ -70,11 +67,11 @@ public class WebDriverChecker {
         } catch (Exception e) {
             System.out.println("Exception occurred");
             e.printStackTrace();
-            if(driver != null) {
+            if (driver != null) {
                 driver.quit();
             }
         } finally {
-            if(driver != null) {
+            if (driver != null) {
                 driver.quit();
             }
         }

@@ -48,6 +48,11 @@ public class TagNameSelectorChecker implements ISelectorChecker {
         return null;
     }
 
+    @Override
+    public String getName() {
+        return "tagName";
+    }
+
     private String parseTagName(String selector, Position position) {
         char next = getCurrentChar(selector, position);
         int startTagNamePosition = position.value();

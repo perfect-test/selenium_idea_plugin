@@ -60,6 +60,11 @@ public class CssSelectorChecker implements ISelectorChecker {
 
     }
 
+    @Override
+    public String getName() {
+        return "css";
+    }
+
     private CheckResult parseAnyElementDigit(String selector, Position position) throws NotParsebleSelectorException {
         try {
             char current = getNextChar(selector, position);

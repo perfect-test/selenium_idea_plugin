@@ -65,6 +65,11 @@ public class XpathSelectorChecker implements ISelectorChecker {
         }
     }
 
+    @Override
+    public String getName() {
+        return "xpath";
+    }
+
     private CheckResult parseStep(String selector, Position position) throws NotParsebleSelectorException {
         char next;
         try {

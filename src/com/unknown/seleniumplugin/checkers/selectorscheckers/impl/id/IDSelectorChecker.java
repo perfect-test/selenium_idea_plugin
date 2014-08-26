@@ -47,6 +47,11 @@ public class IDSelectorChecker implements ISelectorChecker {
         return null;
     }
 
+    @Override
+    public String getName() {
+        return "id";
+    }
+
     private String parseIdName(String selector, Position position) {
         char next = getCurrentChar(selector, position);
         int startIdPosition = position.value();

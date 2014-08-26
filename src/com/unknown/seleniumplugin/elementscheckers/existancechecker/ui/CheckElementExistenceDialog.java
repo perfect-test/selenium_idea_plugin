@@ -33,15 +33,13 @@ public class CheckElementExistenceDialog extends DialogWrapper {
     private String locator;
     private String findMethod;
     private Project project;
-    private boolean isMultiElements;
     private String newSelectorVersion;
 
-    public CheckElementExistenceDialog(Project project, final String locator, final String findMethod, boolean isMultiElements) {
+    public CheckElementExistenceDialog(Project project, final String locator, final String findMethod) {
         super(project);
         this.project = project;
         this.locator = locator;
         this.findMethod = findMethod;
-        this.isMultiElements = isMultiElements;
         setStates();
         init();
         setTitle("Check Element Existence on page");
@@ -83,7 +81,7 @@ public class CheckElementExistenceDialog extends DialogWrapper {
 
     private void setSaveNewLocatorButtonState() {
         String locatorTextFieldValue = locatorValueTextField.getText();
-        if(!locatorTextFieldValue.isEmpty() && !locatorTextFieldValue.equals(locator)) {
+        if (!locatorTextFieldValue.isEmpty() && !locatorTextFieldValue.equals(locator)) {
             enableSaveNewLocatorButton();
         } else {
             disableSaveNewLocatorButton();
@@ -97,7 +95,6 @@ public class CheckElementExistenceDialog extends DialogWrapper {
     private void disableSaveNewLocatorButton() {
         saveNewValueButton.setEnabled(false);
     }
-
 
 
     private void checkElement() {
@@ -114,20 +111,16 @@ public class CheckElementExistenceDialog extends DialogWrapper {
                         @Override
                         public void run() {
                             CheckElementExistenceResult result = WebDriverChecker.checkElementExist(urlTextField.getText(),
-                                    locatorValueTextField.getText(), locatorMethodTextField.getText(), isMultiElements);
+                                    locatorValueTextField.getText(), locatorMethodTextField.getText());
                             if (!result.isFound()) {
                                 String errorMessage = result.getError();
-                                if(errorMessage != null) {
+                                if (errorMessage != null) {
                                     error.append(errorMessage);
                                 } else {
                                     error.append("Not Found");
                                 }
                             } else {
-                                if(isMultiElements) {
-                                    successMessage.append("Found '").append(result.getElementsCount()).append("' element(s)");
-                                } else {
-                                    successMessage.append("Found");
-                                }
+                                successMessage.append("Found '").append(result.getElementsCount()).append("' element(s)");
                             }
                         }
                     });

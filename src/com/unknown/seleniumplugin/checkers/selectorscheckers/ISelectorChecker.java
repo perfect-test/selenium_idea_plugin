@@ -13,4 +13,10 @@ public interface ISelectorChecker {
      * @return {@link com.unknown.seleniumplugin.checkers.selectorscheckers.CheckResult} object.
      */
     CheckResult checkSelectorValid(String selector) throws NotParsebleSelectorException;
+
+    /**
+     * getting name of selector
+     * @return name
+     */
+    String getName();
 }

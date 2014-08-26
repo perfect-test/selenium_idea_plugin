@@ -47,6 +47,11 @@ public class ClassNameSelectorChecker implements ISelectorChecker {
         return null;
     }
 
+    @Override
+    public String getName() {
+        return "className";
+    }
+
     private String parseClassName(String selector, Position position) {
         char next = getCurrentChar(selector, position);
         int startClassNamePosition = position.value();
