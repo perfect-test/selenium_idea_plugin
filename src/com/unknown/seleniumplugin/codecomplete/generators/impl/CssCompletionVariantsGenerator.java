@@ -1,10 +1,9 @@
 package com.unknown.seleniumplugin.codecomplete.generators.impl;
 
 import com.unknown.seleniumplugin.codecomplete.generators.ICompletionVariantsGenerator;
-import com.unknown.seleniumplugin.domain.SelectorSymbolConstants;
+import com.unknown.seleniumplugin.domain.CssSelectorSymbolConstants;
 import com.unknown.seleniumplugin.domain.SeleniumCompletionVariant;
 import com.unknown.seleniumplugin.codecomplete.properties.*;
-import sun.jvm.hotspot.runtime.ia64.cInterpreter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,15 +15,15 @@ public class CssCompletionVariantsGenerator implements ICompletionVariantsGenera
     private static final String CARET_POSITION_ELEMENT_VALUE = "{cp}";
 
     private enum CompletionBase {
-        CLASS_NAME(SelectorSymbolConstants.CLASS_SYMBOL),
-        ID_NAME(SelectorSymbolConstants.ID_SYMBOL),
-        ATTRIBUTE_NAME(SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT),
-        ATTRIBUTE_VALUE(SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL),
-        FUNCTION_NAME(SelectorSymbolConstants.FUNCTION_START_SYMBOL),
-        ATTRIBUTE_EQUALITY(SelectorSymbolConstants.EQUAL_SYMBOL),
-        ATTRIBUTE_VALUE_END(SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT),
-        FUNCTION_INDEX_START(SelectorSymbolConstants.FUNCTION_INDEX_OPENING_SYMBOL),
-        FUNCTION_INDEX_END(SelectorSymbolConstants.FUNCTION_INDEX_CLOSING_SYMBOL),
+        CLASS_NAME(CssSelectorSymbolConstants.CLASS_SYMBOL),
+        ID_NAME(CssSelectorSymbolConstants.ID_SYMBOL),
+        ATTRIBUTE_NAME(CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT),
+        ATTRIBUTE_VALUE(CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL),
+        FUNCTION_NAME(CssSelectorSymbolConstants.FUNCTION_START_SYMBOL),
+        ATTRIBUTE_EQUALITY(CssSelectorSymbolConstants.EQUAL_SYMBOL),
+        ATTRIBUTE_VALUE_END(CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT),
+        FUNCTION_INDEX_START(CssSelectorSymbolConstants.FUNCTION_INDEX_OPENING_SYMBOL),
+        FUNCTION_INDEX_END(CssSelectorSymbolConstants.FUNCTION_INDEX_CLOSING_SYMBOL),
         ;
 
 
@@ -78,37 +77,37 @@ public class CssCompletionVariantsGenerator implements ICompletionVariantsGenera
         List<String> variantsStrings = new ArrayList<String>();
         if (selectorValueBefore.isEmpty()) {
             addAllStartVariants(variantsStrings);
-        } else if (selectorValueBefore.endsWith(SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT)) {
+        } else if (selectorValueBefore.endsWith(CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT)) {
             replaceLastDigitInBeforeString = true;
             variantsStrings.addAll(SeleniumPropertiesReader.getAttributesSelectorVariants());
-        } else if (selectorValueBefore.endsWith(SelectorSymbolConstants.ID_SYMBOL)) {
+        } else if (selectorValueBefore.endsWith(CssSelectorSymbolConstants.ID_SYMBOL)) {
             return variants;
-        } else if (selectorValueBefore.endsWith(SelectorSymbolConstants.CLASS_SYMBOL)) {
+        } else if (selectorValueBefore.endsWith(CssSelectorSymbolConstants.CLASS_SYMBOL)) {
             return variants;
-        } else if (selectorValueBefore.endsWith(SelectorSymbolConstants.ANY_CHARACTER_SYMBOL)) {
+        } else if (selectorValueBefore.endsWith(CssSelectorSymbolConstants.ANY_CHARACTER_SYMBOL)) {
             CompletionEntry entry = getCompletionEntryFromEnteredString(selectorValueBefore);
             if (entry != null) {
                 if (entry.getBase().equals(CompletionBase.ATTRIBUTE_NAME)) {
-                    variantsStrings.add(SelectorSymbolConstants.EQUAL_SYMBOL +
-                            SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
+                    variantsStrings.add(CssSelectorSymbolConstants.EQUAL_SYMBOL +
+                            CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
                             CARET_POSITION_ELEMENT_VALUE +
-                            SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
-                            SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
+                            CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
+                            CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
                 }
             } else {
-                variantsStrings.add(SelectorSymbolConstants.FUNCTION_START_SYMBOL);
+                variantsStrings.add(CssSelectorSymbolConstants.FUNCTION_START_SYMBOL);
             }
 
-        } else if (selectorValueBefore.endsWith(SelectorSymbolConstants.FUNCTION_START_SYMBOL)) {
+        } else if (selectorValueBefore.endsWith(CssSelectorSymbolConstants.FUNCTION_START_SYMBOL)) {
             variantsStrings.addAll(SeleniumPropertiesReader.getFunctions());
-        } else if (selectorValueBefore.endsWith(SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT)) {
+        } else if (selectorValueBefore.endsWith(CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT)) {
             variantsStrings.add(" ");
-            variantsStrings.add(SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT);
-        } else if (selectorValueBefore.endsWith(SelectorSymbolConstants.EQUAL_SYMBOL)) {
-            variantsStrings.add(SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
+            variantsStrings.add(CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT);
+        } else if (selectorValueBefore.endsWith(CssSelectorSymbolConstants.EQUAL_SYMBOL)) {
+            variantsStrings.add(CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
                     CARET_POSITION_ELEMENT_VALUE +
-                    SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
-                    SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
+                    CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
+                    CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
         } else if (selectorValueBefore.endsWith(" ")) {
             CompletionEntry entry = getCompletionEntryFromEnteredString(selectorValueBefore);
             if (entry != null) {
@@ -129,10 +128,10 @@ public class CssCompletionVariantsGenerator implements ICompletionVariantsGenera
                         selectorValueBefore = selectorValueBefore.trim();
                         break;
                     case ATTRIBUTE_EQUALITY:
-                        variantsStrings.add(SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
+                        variantsStrings.add(CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
                                 CARET_POSITION_ELEMENT_VALUE +
-                                SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
-                                SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
+                                CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
+                                CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
                         selectorValueBefore = selectorValueBefore.trim();
                         break;
                     case ATTRIBUTE_VALUE:
@@ -142,16 +141,16 @@ public class CssCompletionVariantsGenerator implements ICompletionVariantsGenera
                             if (entryBefore != null) {
                                 if (entryBefore.getBase().equals(CompletionBase.ATTRIBUTE_EQUALITY)) {
                                     variantsStrings.add(CARET_POSITION_ELEMENT_VALUE +
-                                            SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
-                                            SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
+                                            CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
+                                            CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
                                 } else {
-                                    variantsStrings.add(SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
+                                    variantsStrings.add(CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
                                 }
                             }
                         } else {
                             variantsStrings.add(CARET_POSITION_ELEMENT_VALUE +
-                                    SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
-                                    SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
+                                    CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
+                                    CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
                         }
                         selectorValueBefore = selectorValueBefore.trim();
                         break;
@@ -159,7 +158,7 @@ public class CssCompletionVariantsGenerator implements ICompletionVariantsGenera
                         addAllStartVariants(variantsStrings);
                         break;
                     case FUNCTION_INDEX_START:
-                        variantsStrings.add(CARET_POSITION_ELEMENT_VALUE + SelectorSymbolConstants.FUNCTION_INDEX_CLOSING_SYMBOL);
+                        variantsStrings.add(CARET_POSITION_ELEMENT_VALUE + CssSelectorSymbolConstants.FUNCTION_INDEX_CLOSING_SYMBOL);
                         selectorValueBefore = selectorValueBefore.trim();
                         break;
                     case FUNCTION_INDEX_END:
@@ -173,25 +172,32 @@ public class CssCompletionVariantsGenerator implements ICompletionVariantsGenera
                 addAllStartVariants(variantsStrings);
             }
 
-        } else if (selectorValueBefore.endsWith(SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL)) {
+        } else if (selectorValueBefore.endsWith(CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL)) {
             CompletionEntry entry = getCompletionEntryFromEnteredString(selectorValueBefore.substring(0, selectorValueBefore.length() - 1));
             if (entry != null) {
                 if (entry.getBase().equals(CompletionBase.ATTRIBUTE_EQUALITY)) {
                     variantsStrings.add(CARET_POSITION_ELEMENT_VALUE +
-                            SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
-                            SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
+                            CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
+                            CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
                 } else {
-                    variantsStrings.add(SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
+                    variantsStrings.add(CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
                 }
             }
-        } else if (selectorValueBefore.endsWith(SelectorSymbolConstants.ATTRIBUTE_VALUE_ENDS_WITH_SYMBOL) ||
-                selectorValueBefore.endsWith(SelectorSymbolConstants.ATTRIBUTE_VALUE_STARTS_WITH_SYMBOL)) {
-            variantsStrings.add(SelectorSymbolConstants.EQUAL_SYMBOL);
-        } else if (selectorValueBefore.endsWith(SelectorSymbolConstants.FUNCTION_INDEX_OPENING_SYMBOL)) {
-            variantsStrings.add(CARET_POSITION_ELEMENT_VALUE + SelectorSymbolConstants.FUNCTION_INDEX_CLOSING_SYMBOL);
-        } else if (selectorValueBefore.endsWith(SelectorSymbolConstants.FUNCTION_INDEX_CLOSING_SYMBOL)) {
+        } else if (selectorValueBefore.endsWith(CssSelectorSymbolConstants.ATTRIBUTE_VALUE_ENDS_WITH_SYMBOL) ||
+                selectorValueBefore.endsWith(CssSelectorSymbolConstants.ATTRIBUTE_VALUE_STARTS_WITH_SYMBOL)) {
+            variantsStrings.add(CssSelectorSymbolConstants.EQUAL_SYMBOL);
+        } else if (selectorValueBefore.endsWith(CssSelectorSymbolConstants.FUNCTION_INDEX_OPENING_SYMBOL)) {
+            variantsStrings.add(CARET_POSITION_ELEMENT_VALUE + CssSelectorSymbolConstants.FUNCTION_INDEX_CLOSING_SYMBOL);
+        } else if (selectorValueBefore.endsWith(CssSelectorSymbolConstants.FUNCTION_INDEX_CLOSING_SYMBOL)) {
             variantsStrings.add(" ");
-        } else {
+        } else if (isEndsWithTagName(selectorValueBefore)) {
+            variantsStrings.add(CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT);
+            variantsStrings.add(CssSelectorSymbolConstants.CLASS_SYMBOL);
+            variantsStrings.add(CssSelectorSymbolConstants.FUNCTION_START_SYMBOL);
+            variantsStrings.add(" ");
+        }
+
+        else {
             CompletionEntry entry = getCompletionEntryFromEnteredString(selectorValueBefore);
             if (entry != null) {
                 String entryValue = entry.getValue();
@@ -239,6 +245,22 @@ public class CssCompletionVariantsGenerator implements ICompletionVariantsGenera
             variants.add(completionVariant);
         }
         return variants;
+    }
+
+    private boolean isEndsWithTagName(String selectorValueBefore) {
+        List<String> tags = SeleniumPropertiesReader.getAllTags();
+        String[] splittedSelectorValue = selectorValueBefore.split(" ");
+        if(splittedSelectorValue.length > 0) {
+            String lastValue = splittedSelectorValue[splittedSelectorValue.length - 1];
+            if(!lastValue.isEmpty()) {
+                for(String tag : tags) {
+                    if(lastValue.equals(tag)){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private CompletionEntry getCompletionEntryFromEnteredString(String selectorValueBefore) {

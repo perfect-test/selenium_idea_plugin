@@ -6,8 +6,9 @@ import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.EndOfSel
 import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.NotParsebleSelectorException;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.Position;
 import com.unknown.seleniumplugin.codecomplete.properties.SeleniumPropertiesReader;
+import com.unknown.seleniumplugin.domain.CssSelectorSymbolConstants;
+import com.unknown.seleniumplugin.domain.XPathSelectorSymbolConstants;
 
-import javax.xml.xpath.*;
 import java.util.List;
 
 /**
@@ -26,15 +27,6 @@ public class XpathSelectorChecker implements ISelectorChecker {
             functionNamesString.append(functionName);
         }
         functionNamesElementsDictionary = functionNamesString.toString().toCharArray();
-    }
-
-
-
-
-    public static void main(String[] args) throws XPathExpressionException {
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xPath = factory.newXPath();
-        XPathExpression exception = xPath.compile("//book[author='Abc']/title/text()");
     }
 
     @Override
@@ -146,10 +138,13 @@ public class XpathSelectorChecker implements ISelectorChecker {
                 if (isEqualsSymbol(next)) {
                     try {
                         next = getNextChar(selector, position);
+                        skipWhitespaces(selector, position);
                     } catch (EndOfSelector endOfSelector) {
                         return getCheckResultWithError("Locator can't ends with '=' symbol. There must be an a value", position,
                                 "Add ' and attribute value for check after '=' symbol");
                     }
+                    next = getCurrentChar(selector, position);
+
                     if (isSingleQuot(next)) {
                         try {
                             getNextChar(selector, position);
@@ -161,6 +156,10 @@ public class XpathSelectorChecker implements ISelectorChecker {
                         if (attributeValue.isEmpty()) {
                             return getCheckResultWithError("Attribute value can't be empty", position, "Add attribute value");
                         }
+                        if(position.value() == selector.length()) {
+                            return getCheckResultWithError("There must be single quot after attribute value", position,
+                                    "Add single quot and ']' after attribute value");
+                        }
                         next = getCurrentChar(selector, position);
                         if (!isSingleQuot(next)) {
                             return getCheckResultWithError("There must be single quot after attribute value", position,
@@ -168,10 +167,12 @@ public class XpathSelectorChecker implements ISelectorChecker {
                         }
                         try {
                             next = getNextChar(selector, position);
+                            skipWhitespaces(selector, position);
                         } catch (EndOfSelector endOfSelector) {
                             return getCheckResultWithError("Locator can't ends with closing attribute value single quot. There must be ']' after", position,
                                     "Add ']' after closing single quot");
                         }
+                        next = getCurrentChar(selector, position);
                         if (!isEndAttributeCheckSymbol(next)) {
                             return getCheckResultWithError("There must be a ']' after attribute value", position,
                                     "Add closing ']' after attribute value");
@@ -317,6 +318,11 @@ public class XpathSelectorChecker implements ISelectorChecker {
                     return getCheckResultWithError("Wrong element after function parameters list. There must be ']' after ", position,
                             "After parameters should be an ']' symbol");
                 }
+                try {
+                    getNextChar(selector, position);
+                } catch (EndOfSelector endOfSelector) {
+                    return getSuccessCheckResult();
+                }
             }
         } else if (isIndexSymbol(next)) {
             parseIndex(selector, position);
@@ -334,7 +340,7 @@ public class XpathSelectorChecker implements ISelectorChecker {
                 return getSuccessCheckResult();
             }
         } else {
-            throw new NotParsebleSelectorException("Selector not parsed");
+            throw new NotParsebleSelectorException("No function with such name supported");
         }
         char current = getCurrentChar(selector, position);
         if (isStartStep(current)) {
@@ -393,7 +399,7 @@ public class XpathSelectorChecker implements ISelectorChecker {
     }
 
     private boolean isEqualsSymbol(char ch) {
-        return ch == '=';
+        return String.valueOf(ch).equals(XPathSelectorSymbolConstants.EQUAL_SYMBOL);
     }
 
     private boolean isFunctionStartSymbol(char ch) {
@@ -406,23 +412,23 @@ public class XpathSelectorChecker implements ISelectorChecker {
     }
 
     private boolean isTagPredicateSymbol(char ch) {
-        return ch == '@';
+        return String.valueOf(ch).equals(XPathSelectorSymbolConstants.ATTRIBUTE_NAME_START_SYMBOL);
     }
 
     private boolean isStartAttributeCheckSymbol(char ch) {
-        return ch == '[';
+        return String.valueOf(ch).equals(XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT);
     }
 
     private boolean isEndAttributeCheckSymbol(char ch) {
-        return ch == ']';
+        return String.valueOf(ch).equals(XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
     }
 
     private boolean isOpeningBracesSymbol(char ch) {
-        return ch == '(';
+        return String.valueOf(ch).equals(XPathSelectorSymbolConstants.OPENING_BRACE_ELEMENT);
     }
 
     private boolean isClosingBracesSymbol(char ch) {
-        return ch == ')';
+        return String.valueOf(ch).equals(XPathSelectorSymbolConstants.CLOSING_BRACE_ELEMENT);
     }
 
     private boolean isTagNameStartCharacter(char ch) {
@@ -434,7 +440,7 @@ public class XpathSelectorChecker implements ISelectorChecker {
     }
 
     private boolean isStartStep(char ch) {
-        return ch == '/';
+        return String.valueOf(ch).equals(XPathSelectorSymbolConstants.START_STEP_SYMBOL);
     }
 
     private CheckResult getSuccessCheckResult() {

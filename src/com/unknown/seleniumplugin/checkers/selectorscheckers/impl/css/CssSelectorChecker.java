@@ -5,7 +5,7 @@ import com.unknown.seleniumplugin.checkers.selectorscheckers.ISelectorChecker;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.EndOfSelector;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.NotParsebleSelectorException;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.Position;
-import com.unknown.seleniumplugin.domain.SelectorSymbolConstants;
+import com.unknown.seleniumplugin.domain.CssSelectorSymbolConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -543,26 +543,26 @@ public class CssSelectorChecker implements ISelectorChecker {
     }
 
     private boolean isSingleQuotSymbol(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL);
     }
 
     private boolean isAttributeValueNotStrictlyEqualitySymbol(char ch) {
         String value = String.valueOf(ch);
-        return value.equals(SelectorSymbolConstants.ATTRIBUTE_VALUE_ENDS_WITH_SYMBOL) ||
-                value.equals(SelectorSymbolConstants.ATTRIBUTE_VALUE_STARTS_WITH_SYMBOL) ||
-                value.equals(SelectorSymbolConstants.ANY_CHARACTER_SYMBOL);
+        return value.equals(CssSelectorSymbolConstants.ATTRIBUTE_VALUE_ENDS_WITH_SYMBOL) ||
+                value.equals(CssSelectorSymbolConstants.ATTRIBUTE_VALUE_STARTS_WITH_SYMBOL) ||
+                value.equals(CssSelectorSymbolConstants.ANY_CHARACTER_SYMBOL);
     }
 
     private boolean isAttributeValueStrictlyEqualitySymbol(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.EQUAL_SYMBOL);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.EQUAL_SYMBOL);
     }
 
     private boolean isAttributeValueEndsWithSymbol(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.ATTRIBUTE_VALUE_ENDS_WITH_SYMBOL);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.ATTRIBUTE_VALUE_ENDS_WITH_SYMBOL);
     }
 
     private boolean isAttributeValueStartsWithSymbol(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.ATTRIBUTE_VALUE_STARTS_WITH_SYMBOL);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.ATTRIBUTE_VALUE_STARTS_WITH_SYMBOL);
     }
 
 
@@ -575,27 +575,27 @@ public class CssSelectorChecker implements ISelectorChecker {
     }
 
     private boolean isClassStartCharacter(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.CLASS_SYMBOL);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.CLASS_SYMBOL);
     }
 
     private boolean isIdStartCharacter(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.ID_SYMBOL);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.ID_SYMBOL);
     }
 
     private boolean isOpeningElement(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT);
     }
 
     private boolean isClosingElement(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
     }
 
     private boolean isAnyElementDigit(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.ANY_CHARACTER_SYMBOL);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.ANY_CHARACTER_SYMBOL);
     }
 
     private boolean isFunctionStartElement(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.FUNCTION_START_SYMBOL);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.FUNCTION_START_SYMBOL);
     }
 
     private boolean isStartElement(char ch) {
@@ -764,11 +764,11 @@ public class CssSelectorChecker implements ISelectorChecker {
     }
 
     private static boolean isOpeningBracesElement(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.FUNCTION_INDEX_OPENING_SYMBOL);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.FUNCTION_INDEX_OPENING_SYMBOL);
     }
 
     private static boolean isClosingBracesElement(char ch) {
-        return String.valueOf(ch).equals(SelectorSymbolConstants.FUNCTION_INDEX_CLOSING_SYMBOL);
+        return String.valueOf(ch).equals(CssSelectorSymbolConstants.FUNCTION_INDEX_CLOSING_SYMBOL);
     }
 
 

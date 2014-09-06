@@ -3,7 +3,7 @@ package com.unknown.seleniumplugin.domain;
 /**
  * Created by mike-sid on 19.06.14.
  */
-public interface SelectorSymbolConstants {
+public interface CssSelectorSymbolConstants {
     String ID_SYMBOL = "#";
     String CLASS_SYMBOL = ".";
     String ANY_CHARACTER_SYMBOL = "*";

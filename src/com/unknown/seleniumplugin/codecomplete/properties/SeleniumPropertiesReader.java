@@ -22,7 +22,12 @@ public class SeleniumPropertiesReader {
     private static final String XPATH_FUNCTIONS_PROPERTY_NAME = "xpath.functions";
     private static final String PATH_TO_PROPERTIES_FILE = "properties/selector_parts.properties";
     private static final String ATTRIBUTE_VALUE_REPLACE_PARAM = "{attribute_name}";
+    private static final String FUNCTION_VALUE_REPLACE_PARAM = "{function_name}";
     private static final String XPATH_EQUALITY_FUNCTIONS_PROPERTY_NAME = "xpath.equality.functions";
+    private static final String XPATH_SIMPLE_ATTRIBUTE_PATTERN_PROPERTY_NAME = "xpath.simple.attribute.pattern";
+    private static final String XPATH_FUNCTION_ATTRIBUTE_PATTERN_PROPERTY_NAME = "xpath.simple.function.attribute.pattern";
+    private static final String XPATH_EQUALITY_FUNCTION_ATTRIBUTE_PATTERN_PROPERTY_NAME = "xpath.equality.function.attribute.pattern";
+
     private static final String XPATH_FUNCTION_PARAM_NAME = "fn";
 
     private static List<String> attributesVariants;
@@ -33,7 +38,11 @@ public class SeleniumPropertiesReader {
     private static List<String> attributesSelectorVariants;
     private static List<String> functionsVariants;
     private static List<String> xpathFunctions;
+    private static List<String> xpathSimpleFunctions;
     private static List<String> xpathEqualityFunctions;
+    private static List<String> xpathAttributesVariants;
+    private static List<String> xpathFunctionsAttributesVariants;
+    private static List<String> xpathEqualityFunctionsAttributesVariants;
 
 
     private static final Properties selectorProperties;
@@ -64,22 +73,24 @@ public class SeleniumPropertiesReader {
         return tagsVariants;
     }
 
-    public static List<String> getXpathFunctions() {
-        if (xpathFunctions == null) {
-            xpathFunctions = new ArrayList<String>();
+    public static List<String> getXPathSimpleFunctions(){
+        if(xpathSimpleFunctions == null) {
+            xpathSimpleFunctions = new ArrayList<String>();
             String functionsString = selectorProperties.getProperty(XPATH_FUNCTIONS_PROPERTY_NAME);
             if (functionsString != null) {
                 functionsString = functionsString.replaceAll(XPATH_FUNCTION_PARAM_NAME, "").replaceAll(":", "");
                 String[] variants = functionsString.split(",");
-                Collections.addAll(xpathFunctions, variants);
+                Collections.addAll(xpathSimpleFunctions, variants);
             }
-            functionsString = selectorProperties.getProperty(XPATH_EQUALITY_FUNCTIONS_PROPERTY_NAME);
-            if (functionsString != null) {
-                functionsString = functionsString.replaceAll(XPATH_FUNCTION_PARAM_NAME, "").replaceAll(":", "");
-                String[] variants = functionsString.split(",");
-                Collections.addAll(xpathFunctions, variants);
-            }
+        }
+        return xpathSimpleFunctions;
+    }
 
+    public static List<String> getXpathFunctions() {
+        if (xpathFunctions == null) {
+            xpathFunctions = new ArrayList<String>();
+            xpathFunctions.addAll(getXPathSimpleFunctions());
+            xpathFunctions.addAll(getXpathEqualityFunctions());
         }
         return xpathFunctions;
     }
@@ -110,6 +121,55 @@ public class SeleniumPropertiesReader {
         }
         return attributesSelectorVariants;
     }
+
+    public static List<String> getXpathAttributesSelectorVariants() {
+        if (xpathAttributesVariants == null) {
+            xpathAttributesVariants = new ArrayList<String>();
+            String xpathAttributePattern = selectorProperties.getProperty(XPATH_SIMPLE_ATTRIBUTE_PATTERN_PROPERTY_NAME);
+            if (xpathAttributePattern != null) {
+                List<String> attributeValues = getAttributesValuesList();
+                for (String attributeValue : attributeValues) {
+                    xpathAttributesVariants.add(xpathAttributePattern.replace(ATTRIBUTE_VALUE_REPLACE_PARAM, attributeValue));
+                }
+            }
+
+        }
+        return xpathAttributesVariants;
+    }
+
+    public static List<String> getXpathFunctionsAttributesSelectorVariants() {
+        if (xpathFunctionsAttributesVariants == null) {
+            xpathFunctionsAttributesVariants = new ArrayList<String>();
+            String xpathFunctionAttributePattern = selectorProperties.getProperty(XPATH_FUNCTION_ATTRIBUTE_PATTERN_PROPERTY_NAME);
+            if (xpathFunctionAttributePattern != null) {
+                List<String> functions = getXPathSimpleFunctions();
+                for (String function : functions) {
+                    xpathFunctionsAttributesVariants.add(xpathFunctionAttributePattern.replace(FUNCTION_VALUE_REPLACE_PARAM, function));
+                }
+            }
+
+        }
+        return xpathFunctionsAttributesVariants;
+    }
+
+    public static List<String> getXpathEqualityFunctionsAttributesSelectorVariants() {
+        if (xpathEqualityFunctionsAttributesVariants == null) {
+            xpathEqualityFunctionsAttributesVariants = new ArrayList<String>();
+            String xpathFunctionAttributePattern = selectorProperties.getProperty(XPATH_EQUALITY_FUNCTION_ATTRIBUTE_PATTERN_PROPERTY_NAME);
+            if (xpathFunctionAttributePattern != null) {
+                List<String> functions = getXpathEqualityFunctions();
+                for (String function : functions) {
+                    xpathEqualityFunctionsAttributesVariants.add(xpathFunctionAttributePattern.replace(FUNCTION_VALUE_REPLACE_PARAM, function));
+                }
+            }
+
+        }
+        return xpathEqualityFunctionsAttributesVariants;
+    }
+
+
+
+
 
     public static List<String> getAttributesValuesList() {
         if (attributesVariants == null) {

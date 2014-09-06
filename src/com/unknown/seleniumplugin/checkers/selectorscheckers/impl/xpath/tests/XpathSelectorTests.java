@@ -21,23 +21,27 @@ public class XpathSelectorTests {
     @DataProvider
     public Object[][] badSelectors() {
         return new Object[][]{
-//                {"*:nth-child"}
+//                {"*:nth-child"},
+//                {"//acronym[@accept-charset='acronym"}
+                {"//class[accept"}
         };
     }
 
     @DataProvider
     public Object[][] goodSelectors() {
         return new Object[][]{
-                {"//home"},
-                {"//home/dic"},
-                {"//home/dic"},
-                {"//BBB[@id='b1']"},
-                {"//BBB[@name ='bbb']"},
-                {"//BBB[normalize-space(@name) = 'bbb']"},
-                {"//*[count(*) = 3]"},
-                {"//*[count(BBB)= 2]"},
-                {"//BBB[@id]"},
-                {"//BBB[23]"}
+//                {"//home"},
+//                {"//home/dic"},
+//                {"//home/dic"},
+//                {"//BBB[@id='b1']"},
+//                {"//BBB[@name ='bbb']"},
+//                {"//BBB[normalize-space(@name) = 'bbb']"},
+//                {"//*[count(*) = 3]"},
+//                {"//*[count(BBB)= 2]"},
+//                {"//BBB[@id]"},
+//                {"//BBB[23]"},
+//                {"//acronym[not(d)]"}
+                {"//abbr[@accept    = 'd'   ]"}
         };
     }
 

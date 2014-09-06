@@ -10,8 +10,10 @@ import com.intellij.util.ProcessingContext;
 import com.unknown.seleniumplugin.codecomplete.generators.ICompletionVariantsGenerator;
 import com.unknown.seleniumplugin.codecomplete.generators.impl.TagNameCompletionVariantsGenerator;
 import com.unknown.seleniumplugin.codecomplete.generators.impl.CssCompletionVariantsGenerator;
+import com.unknown.seleniumplugin.codecomplete.generators.impl.XpathCompletionVariantsGenerator;
 import com.unknown.seleniumplugin.codecomplete.inserthandlers.ISeleniumInsertHandler;
 import com.unknown.seleniumplugin.codecomplete.inserthandlers.impl.CssInsertHandler;
+import com.unknown.seleniumplugin.codecomplete.inserthandlers.impl.XpathInsertHandler;
 import com.unknown.seleniumplugin.domain.SelectorMethodValue;
 import com.unknown.seleniumplugin.domain.SeleniumCompletionVariant;
 import com.unknown.seleniumplugin.utils.AnnotationChecker;
@@ -27,8 +29,10 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
  */
 public class SelectorCompletionContributor extends CompletionContributor {
     private static final ISeleniumInsertHandler CSS_INSERT_HANDLER = new CssInsertHandler();
+    private static final ISeleniumInsertHandler XPATH_INSERT_HANDLER = new XpathInsertHandler();
     private static final ICompletionVariantsGenerator CSS_COMPLETION_VARIANTS_GENERATOR = new CssCompletionVariantsGenerator();
     private static final ICompletionVariantsGenerator TAG_NAME_COMPLETION_VARIANTS_GENERATOR = new TagNameCompletionVariantsGenerator();
+    private static final ICompletionVariantsGenerator XPATH_COMPLETION_VARIANTS_GENERATOR = new XpathCompletionVariantsGenerator();
 
     public SelectorCompletionContributor() {
         extend(CompletionType.BASIC, psiElement(), new CompletionProvider<CompletionParameters>() {
@@ -42,7 +46,6 @@ public class SelectorCompletionContributor extends CompletionContributor {
                         System.out.println("annotation is null");
                     } else {
                         System.out.println("annotation name : " + annotation.getQualifiedName());
-
                         if (AnnotationChecker.isFindByAnnotation(annotation.getQualifiedName())) {
                             SelectorMethodValue selectorMethodValue = SelectorMethodValue.getByText(pair.getName());
                             List<SeleniumCompletionVariant> completionVariants = getCompletionVariants(pair, selectorMethodValue);
@@ -62,6 +65,9 @@ public class SelectorCompletionContributor extends CompletionContributor {
             switch (selectorMethodValue) {
                 case CSS:
                     insertHandler = CSS_INSERT_HANDLER;
+                    break;
+                case XPATH:
+                    insertHandler = XPATH_INSERT_HANDLER;
                     break;
                 default:
                     //do nothing
@@ -90,6 +96,9 @@ public class SelectorCompletionContributor extends CompletionContributor {
                         break;
                     case TAG_NAME:
                         completionVariantsGenerator = TAG_NAME_COMPLETION_VARIANTS_GENERATOR;
+                        break;
+                    case XPATH:
+                        completionVariantsGenerator = XPATH_COMPLETION_VARIANTS_GENERATOR;
                         break;
                     default:
                         //do nothing
