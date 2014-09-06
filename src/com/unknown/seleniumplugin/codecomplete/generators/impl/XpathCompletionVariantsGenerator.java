@@ -38,7 +38,6 @@ public class XpathCompletionVariantsGenerator implements ICompletionVariantsGene
                 );
             } else if (isStartStepTagName(selectorValueBefore, tagName)) {
                 variantsStrings.add(XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT);
-                variantsStrings.add(XPathSelectorSymbolConstants.START_STEP_SYMBOL);
             } else {
                 return variants;
             }

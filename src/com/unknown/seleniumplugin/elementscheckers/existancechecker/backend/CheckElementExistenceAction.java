@@ -57,8 +57,8 @@ public class CheckElementExistenceAction extends AnAction {
         if (elementAt != null) {
             locatorElement = elementAt.getParent();
             if (locatorElement != null && locatorElement instanceof PsiLiteralExpression) {
-                locator = getLocatorValue(locatorElement);
-                selectorMethodValue = getSelectorValue(locatorElement);
+                locator = PsiCommonUtils.getLocatorValue(locatorElement);
+                selectorMethodValue = PsiCommonUtils.getSelectorValue(locatorElement);
                 System.out.println(locator + ":" + selectorMethodValue);
             }
         }
@@ -79,53 +79,5 @@ public class CheckElementExistenceAction extends AnAction {
         );
     }
 
-    private SelectorMethodValue getSelectorValue(PsiElement parent) {
-        PsiElement psiElement = parent.getParent();
-        if (psiElement != null) {
-            PsiElement grandParent = psiElement.getParent();
-            if (grandParent != null) {
-                if (grandParent instanceof PsiMethodCallExpression) {
-                    String text = grandParent.getText();
-                    for (SelectorMethodValue selectorMethodValue : SelectorMethodValue.values()) {
-                        if (text.contains(selectorMethodValue.getSelectorMethod())) {
-                            return selectorMethodValue;
-                        }
-                    }
-                } else {
-                    PsiElement masterGrandParent = grandParent.getParent();
-                    if (masterGrandParent != null) {
-                        if (masterGrandParent instanceof PsiAnnotation) {
-                            PsiAnnotation annotation = (PsiAnnotation) masterGrandParent;
-                            PsiJavaCodeReferenceElement referenceElement = annotation.getNameReferenceElement();
-                            if (referenceElement != null) {
-                                if (AnnotationChecker.isFindByAnnotation(referenceElement.getQualifiedName()) ||
-                                        AnnotationChecker.isFindBysAnnotation(referenceElement.getQualifiedName())) {
-                                    PsiNameValuePair[] nameValuePairs = annotation.getParameterList().getAttributes();
-                                    if (nameValuePairs.length > 0) {
-                                        for (PsiNameValuePair nameValuePair : nameValuePairs) {
-                                            String name = nameValuePair.getName();
-                                            if (name != null) {
-                                                SelectorMethodValue selectorMethodValue = SelectorMethodValue.getByText(name);
-                                                if (selectorMethodValue != null) {
-                                                    return selectorMethodValue;
-                                                }
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private String getLocatorValue(PsiElement element) {
-        return element.getText().replaceAll("\"", "");
-    }
 
 }
