@@ -18,17 +18,18 @@ public class XpathCompletionVariantsGenerator implements ICompletionVariantsGene
     @Override
     public List<SeleniumCompletionVariant> generateVariants(String selectorValueBefore) {
         List<SeleniumCompletionVariant> variants = new ArrayList<SeleniumCompletionVariant>();
-        boolean isStartOfSelector = false;
         boolean replaceLastDigitInBeforeString = false;
+        boolean isStartOfLocator = false;
+        int lastStartStepSymbolIndex = -1;
         String tagName;
         String attributeName;
         String functionName;
         String indexValue;
         List<String> variantsStrings = new ArrayList<String>();
         if (selectorValueBefore.isEmpty()) {
-            isStartOfSelector = true;
+            isStartOfLocator = true;
             addAllStartVariants(variantsStrings);
-        } else if (selectorValueBefore.endsWith(XPathSelectorSymbolConstants.START_STEP_SYMBOL)) {
+        }  else if (selectorValueBefore.endsWith(XPathSelectorSymbolConstants.START_STEP_SYMBOL)) {
             variantsStrings.addAll(SeleniumPropertiesReader.getAllTags());
         } else if ((tagName = getEndsTagName(selectorValueBefore)) != null) {
             if (isWordInAttributeValue(selectorValueBefore, tagName)) {
@@ -63,15 +64,15 @@ public class XpathCompletionVariantsGenerator implements ICompletionVariantsGene
                                 XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT
                 );
             }
-        } else if((functionName = getEndsFunctionName(selectorValueBefore))!= null) {
+        } else if ((functionName = getEndsFunctionName(selectorValueBefore)) != null) {
             if (isWordInAttributeValue(selectorValueBefore, functionName)) {
                 variantsStrings.add(
                         XPathSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
                                 XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT
                 );
-            } else if(isStartAttributeSearchFunctionName(selectorValueBefore, functionName)) {
+            } else if (isStartAttributeSearchFunctionName(selectorValueBefore, functionName)) {
                 String toAdd = null;
-                if(SeleniumPropertiesReader.getXPathSimpleFunctions().contains(functionName)) {
+                if (SeleniumPropertiesReader.getXPathSimpleFunctions().contains(functionName)) {
                     toAdd = XPathSelectorSymbolConstants.OPENING_BRACE_ELEMENT +
                             CARET_POSITION_ELEMENT_VALUE +
                             XPathSelectorSymbolConstants.CLOSING_BRACE_ELEMENT +
@@ -95,22 +96,22 @@ public class XpathCompletionVariantsGenerator implements ICompletionVariantsGene
                 }
                 variantsStrings.add(toAdd);
             }
-        } else if((indexValue = getEndsIndex(selectorValueBefore)) != null) {
+        } else if ((indexValue = getEndsIndex(selectorValueBefore)) != null) {
             if (isWordInAttributeValue(selectorValueBefore, indexValue)) {
                 variantsStrings.add(
                         XPathSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
                                 XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT
                 );
-            } else if(isInAttributeSearchIndex(selectorValueBefore, indexValue)) {
+            } else if (isInAttributeSearchIndex(selectorValueBefore, indexValue)) {
                 variantsStrings.add(XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT);
             }
-        } else if(selectorValueBefore.endsWith(XPathSelectorSymbolConstants.EQUAL_SYMBOL)) {
+        } else if (selectorValueBefore.endsWith(XPathSelectorSymbolConstants.EQUAL_SYMBOL)) {
             variantsStrings.add(XPathSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
                     CARET_POSITION_ELEMENT_VALUE +
                     XPathSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL +
                     XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT
             );
-        } else if(selectorValueBefore.endsWith(XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT)) {
+        } else if (selectorValueBefore.endsWith(XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT)) {
             variantsStrings.add(XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT);
         }
         if (replaceLastDigitInBeforeString) {
@@ -118,8 +119,11 @@ public class XpathCompletionVariantsGenerator implements ICompletionVariantsGene
         }
         for (String variant : variantsStrings) {
             String finalVariant = selectorValueBefore + variant;
-            if (!isStartOfSelector) {
-                finalVariant = finalVariant.substring(2, finalVariant.length());
+            if (!isStartOfLocator) {
+                lastStartStepSymbolIndex = finalVariant.lastIndexOf(XPathSelectorSymbolConstants.START_STEP_SYMBOL) + 1;
+                if (lastStartStepSymbolIndex >= 0) {
+                    finalVariant = finalVariant.substring(lastStartStepSymbolIndex, finalVariant.length());
+                }
             }
             int caretPositionIndex = finalVariant.indexOf(CARET_POSITION_ELEMENT_VALUE);
             SeleniumCompletionVariant completionVariant = new SeleniumCompletionVariant();
@@ -152,7 +156,11 @@ public class XpathCompletionVariantsGenerator implements ICompletionVariantsGene
             String element = String.valueOf(selectorValueBefore.charAt(i));
             if (element.equals(XPathSelectorSymbolConstants.ATTRIBUTE_VALUE_START_END_SYMBOL)) {
                 return true;
-            } else if (element.equals(XPathSelectorSymbolConstants.ATTRIBUTE_NAME_START_SYMBOL)) {
+            } else if (
+                    element.equals(XPathSelectorSymbolConstants.ATTRIBUTE_NAME_START_SYMBOL) ||
+                            element.equals(XPathSelectorSymbolConstants.START_STEP_SYMBOL) ||
+                            element.equals(XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_START_ELEMENT) ||
+                            element.equals(XPathSelectorSymbolConstants.ATTRIBUTE_SELECTOR_PART_END_ELEMENT)) {
                 return false;
             }
         }
@@ -199,8 +207,8 @@ public class XpathCompletionVariantsGenerator implements ICompletionVariantsGene
 
     private String getEndsIndex(String selectorValueBefore) {
         String indexValue = getLastSelectorWord(selectorValueBefore);
-        if(indexValue != null) {
-            try{
+        if (indexValue != null) {
+            try {
                 Integer integer = Integer.valueOf(indexValue);
                 return indexValue;
             } catch (Exception e) {
@@ -209,7 +217,6 @@ public class XpathCompletionVariantsGenerator implements ICompletionVariantsGene
         }
         return null;
     }
-
 
 
     private String getEndsFunctionName(String selectorValueBefore) {

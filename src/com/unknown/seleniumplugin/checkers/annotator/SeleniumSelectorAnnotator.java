@@ -61,9 +61,11 @@ public class SeleniumSelectorAnnotator implements Annotator {
                 SelectorMethodValue findMethod = getFindMethodFromExpressionText(callExpression.getText());
                 if (findMethod != null && selectorValueElement != null) {
                     setSelectorChecker(findMethod);
-                    String selectorValue = replaceUnnecessarySymbols(selectorValueElement.getText());
-                    System.out.println("Expression value : " + findMethod + " : " + selectorValue);
-                    checkError(selectorValue, selectorValueElement, holder);
+                    if (selectorChecker != null && isMethodCheckEnabled(findMethod, properties)) {
+                        String selectorValue = replaceUnnecessarySymbols(selectorValueElement.getText());
+                        System.out.println("Expression value : " + findMethod + " : " + selectorValue);
+                        checkError(selectorValue, selectorValueElement, holder);
+                    }
                 }
             }
         }
@@ -110,8 +112,15 @@ public class SeleniumSelectorAnnotator implements Annotator {
                         PsiNameValuePair[] nameValuePairs = annotation.getParameterList().getAttributes();
                         if (nameValuePairs.length > 0) {
                             for (PsiNameValuePair nameValuePair : nameValuePairs) {
-                                setSelectorCheckerForPair(nameValuePair);
-                                if (selectorChecker != null) {
+                                String name = nameValuePair.getName();
+                                SelectorMethodValue selectorMethodValue = null;
+                                if (name != null) {
+                                    selectorMethodValue = SelectorMethodValue.getByText(name);
+                                    if (selectorMethodValue != null) {
+                                        setSelectorChecker(selectorMethodValue);
+                                    }
+                                }
+                                if (selectorChecker != null && isMethodCheckEnabled(selectorMethodValue, properties)) {
                                     PsiAnnotationMemberValue nameValuePairValue = nameValuePair.getValue();
                                     if (nameValuePairValue != null) {
                                         String value = AnnotationsUtils.getClearAnnotationParameterValue(nameValuePairValue);
@@ -129,8 +138,24 @@ public class SeleniumSelectorAnnotator implements Annotator {
         }
     }
 
+    private boolean isMethodCheckEnabled(SelectorMethodValue selectorMethodValue, PropertiesComponent properties) {
+        switch (selectorMethodValue) {
+            case CSS:
+                return properties.isTrueValue(SeleniumSettingsParams.CSS_SELECTOR_CHECK_ENABLED);
+            case XPATH:
+                return properties.isTrueValue(SeleniumSettingsParams.XPATH_SELECTOR_CHECK_ENABLED);
+            case CLASS_NAME:
+                return properties.isTrueValue(SeleniumSettingsParams.CLASS_NAME_SELECTOR_CHECK_ENABLED);
+            case ID:
+                return properties.isTrueValue(SeleniumSettingsParams.ID_SELECTOR_CHECK_ENABLED);
+            case TAG_NAME:
+                return properties.isTrueValue(SeleniumSettingsParams.TAG_NAME_SELECTOR_CHECK_ENABLED);
+        }
+        return false;
+    }
+
     private void checkError(String value, PsiElement element, AnnotationHolder holder) {
-        if(selectorChecker == null) {
+        if (selectorChecker == null) {
             TextRange range = new TextRange(element.getTextRange().getStartOffset(),
                     element.getTextRange().getEndOffset());
             holder.createWarningAnnotation(range, "This type of locator not supported");
