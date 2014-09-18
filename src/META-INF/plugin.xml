@@ -29,7 +29,6 @@
       <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.unknown.seleniumplugin.linemaker.SeleniumFieldsLineMakerProvider"/>
       <completion.contributor language="JAVA" implementationClass="com.unknown.seleniumplugin.codecomplete.SelectorCompletionContributor"/>
       <projectTemplate projectType="Selenium" templatePath="resources/projectTemplates/Other/Simple Selenium App.zip"/>
-      <!--<moduleType id="SELENIUM_MODULE" implementationClass="com.unknown.seleniumplugin.project.SeleniumModuleType" classpathProvider="true"/>-->
       <!-- Add your extensions here -->
   </extensions>
 
