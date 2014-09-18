@@ -180,15 +180,6 @@ public class SeleniumSelectorAnnotator implements Annotator {
         }
     }
 
-    private void setSelectorCheckerForPair(PsiNameValuePair nameValuePair) {
-        String name = nameValuePair.getName();
-        if (name != null) {
-            SelectorMethodValue selectorMethodValue = SelectorMethodValue.getByText(name);
-            if (selectorMethodValue != null) {
-                setSelectorChecker(selectorMethodValue);
-            }
-        }
-    }
 
     private void setSelectorChecker(SelectorMethodValue methodValue) {
         switch (methodValue) {

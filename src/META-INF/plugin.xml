@@ -1,4 +1,5 @@
-<idea-plugin version="2">
+<idea-plugin>
+    <depends>com.intellij.modules.java</depends>
   <id>SeleniumPlugin</id>
   <name>Selenium plugin</name>
   <version>1.0</version>
@@ -26,8 +27,9 @@
   <extensions defaultExtensionNs="com.intellij">
       <annotator language="JAVA" implementationClass="com.unknown.seleniumplugin.checkers.annotator.SeleniumSelectorAnnotator"/>
       <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.unknown.seleniumplugin.linemaker.SeleniumFieldsLineMakerProvider"/>
-      <completion.contributor language="JAVA" implementationClass="com.unknown.seleniumplugin.codecomplete.SelectorCompletionContributor"
-                              />
+      <completion.contributor language="JAVA" implementationClass="com.unknown.seleniumplugin.codecomplete.SelectorCompletionContributor"/>
+      <projectTemplate projectType="Selenium" templatePath="resources/projectTemplates/Other/Simple Selenium App.zip"/>
+      <!--<moduleType id="SELENIUM_MODULE" implementationClass="com.unknown.seleniumplugin.project.SeleniumModuleType" classpathProvider="true"/>-->
       <!-- Add your extensions here -->
   </extensions>
 
