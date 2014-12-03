@@ -10,4 +10,5 @@ public interface SeleniumSettingsParams {
     String CLASS_NAME_SELECTOR_CHECK_ENABLED = "SeleniumPlugin.ClassNameSelectorCheckEnabled";
     String ID_SELECTOR_CHECK_ENABLED = "SeleniumPlugin.IdSelectorCheckEnabled";
     String TAG_NAME_SELECTOR_CHECK_ENABLED = "SeleniumPlugin.TagNameSelectorCheckEnabled";
+    String PHANTOM_JS_PATH = "SeleniumPlugin.PhantomJsPath";
 }

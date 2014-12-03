@@ -3,17 +3,18 @@
   <id>SeleniumPlugin</id>
   <name>Selenium plugin</name>
   <version>1.0</version>
-  <vendor email="sidelnikovmike@gmail.com" url="http://www.yourcompany.com">Perfect Test</vendor>
+  <vendor email="mail@perfect-test.com" url="http://www.perfect-test.com">Perfect Test</vendor>
 
   <description><![CDATA[
-      Selenium plugin
+      With our plugin your web tests development using selenium becomes as simple as it could be.
+      All info you could find on our site : http://perfect-test.com
     ]]></description>
 
-  <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
-    ]]>
-  </change-notes>
+  <!--<change-notes><![CDATA[-->
+      <!--Add change notes here.<br>-->
+      <!--<em>most HTML tags may be used</em>-->
+    <!--]]>-->
+  <!--</change-notes>-->
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
   <idea-version since-build="131"/>
@@ -28,7 +29,7 @@
       <annotator language="JAVA" implementationClass="com.unknown.seleniumplugin.checkers.annotator.SeleniumSelectorAnnotator"/>
       <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.unknown.seleniumplugin.linemaker.SeleniumFieldsLineMakerProvider"/>
       <completion.contributor language="JAVA" implementationClass="com.unknown.seleniumplugin.codecomplete.SelectorCompletionContributor"/>
-      <projectTemplate projectType="Selenium" templatePath="resources/projectTemplates/Other/Simple Selenium App.zip"/>
+      <projectTemplate projectType="Java" templatePath="resources/projectTemplates/Java/Simple Selenium App.zip" category="true"/>
       <!-- Add your extensions here -->
   </extensions>
 
@@ -62,9 +63,9 @@
           <add-to-group group-id="EditorContextBarMenu" anchor="last"/>
           <keyboard-shortcut keymap="$default" first-keystroke="meta W"/>
       </action>
-      <action id="CheckElementExistanceAction"
+      <action id="CheckElementExistenceAction"
               class="com.unknown.seleniumplugin.elementscheckers.existancechecker.backend.CheckElementExistenceAction"
-              text="Check Element Existance" description="Checks element existance on page (with phantomJs)">
+              text="Check Element Existence" description="Checks element existence on page (with phantomJs)">
           <add-to-group group-id="EditorPopupMenu" anchor="last"/>
       </action>
   </actions>

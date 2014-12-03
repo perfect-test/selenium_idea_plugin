@@ -52,7 +52,8 @@ public class CssSelectorTests {
                 {"div[x=''] a[a='"},
                 {"div[x=''] a[a=''"},
                 {"div[x=''] a[a=']"},
-                {"*:nth-child"}
+                {"*:nth-child"},
+                {"#masthead-search-term["}
         };
     }
 
@@ -60,31 +61,33 @@ public class CssSelectorTests {
     public Object[][] goodSelectors() {
         return new Object[][]{
                 {"siv.dav"},
-//                {"[accept-charset^='dd']"},
-//                {"#mailbox.className"},
-//                {"#mailbox[class='aa']"},
-//                {"#mailbox .classBox"},
-//                {"#mailbox [class='className']"},
-//                {"#div[   class =  'mailbox__register'    ]"},
-//                {"#div[   name =  'mailbox__register'    ]"},
-//                {"#div[   name =  mailbox__register    ]"},
-//                {"#div[   attributename =  'mailbox_     _adf asf asdf adf adf register']         "},
-//                {"#mailbox tagName[class='']"},
-//                {"#mailbox tagName.className"},
-//                {"#mailbox__auth__button"},
-//                {"#mailbox #innerbox"},
-//                {"#div[   class =  'mailbox__register'][class='sasd']"},
-//                {"#div[   class =  'mailbox__register'] .className"},
-//                {"#div[   class =  'mailbox__register'] #dic"},
-//                {"#div[   class =  'd'   ]"},
-//                {"[class='adsfas '] [asdf='dsds']"},
-//                {"div[class*='b-review-auth b-island']"},
-//                {"div.b-dropdowna_action_placement span.b-form-button"},
-//                {".b-grid__total .b-grid__cell_type_cost .b-grid__cell-text:first-child"},
-//                {".b-grid__total .b-grid__cell_type_cost .b-grid__cell-text:last-child"},
-//                {".b-grid__total .b-grid__cell_type_show .b-grid__cell-text:first-child"},
-//                {".b-grid__total .b-grid__cell_type_show .b-grid__cell-text:nth-child(2)"},
-//                {".b-grid__total .b-grid__cell_type_show .b-grid__cell-text:last-child"},
+                {"di-v"},
+                {"[accept-charset^='dd']"},
+                {"#mailbox.className"},
+                {"#mailbox[class='aa']"},
+                {"#mailbox .classBox"},
+                {"#mailbox [class='className']"},
+                {"#div[   class =  'mailbox__register'    ]"},
+                {"#div[   name =  'mailbox__register'    ]"},
+                {"#div[   name =  mailbox__register    ]"},
+                {"#div[   attributename =  'mailbox_     _adf asf asdf adf adf register']         "},
+                {"#mailbox tagName[class='']"},
+                {"#mailbox tagName.className"},
+                {"#mailbox__auth__button"},
+                {"#mailbox #innerbox"},
+                {"#div[   class =  'mailbox__register'][class='sasd']"},
+                {"#div[   class =  'mailbox__register'] .className"},
+                {"#div[   class =  'mailbox__register'] #dic"},
+                {"#div[   class =  'd'   ]"},
+                {"[class='adsfas '] [asdf='dsds']"},
+                {"div[class*='b-review-auth b-island']"},
+                {"div.b-dropdowna_action_placement span.b-form-button"},
+                {".b-grid__total .b-grid__cell_type_cost .b-grid__cell-text:first-child"},
+                {".b-grid__total .b-grid__cell_type_cost .b-grid__cell-text:last-child"},
+                {".b-grid__total .b-grid__cell_type_show .b-grid__cell-text:first-child"},
+                {".b-grid__total .b-grid__cell_type_show .b-grid__cell-text:nth-child(2)"},
+                {".b-grid__total .b-grid__cell_type_show .b-grid__cell-text:last-child"},
+                {"#masthead-search-term"}
 
 
         };

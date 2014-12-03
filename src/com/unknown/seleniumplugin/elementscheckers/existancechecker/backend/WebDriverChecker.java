@@ -7,6 +7,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
 public class WebDriverChecker {
 
     public static CheckElementExistenceResult checkElementExist(String urlTextFieldText, String locatorValueTextFieldText,
-                                                                String locatorMethodTextFieldText) {
+                                                                String locatorMethodTextFieldText, String phantomJsFieldValue) {
         HttpResponse response = HttpUtils.sendGetRequest(urlTextFieldText);
         if (response == null) {
             return new CheckElementExistenceResult("Url not valid - no response", false);
@@ -31,7 +32,9 @@ public class WebDriverChecker {
             if (selectorMethodValue == null) {
                 return new CheckElementExistenceResult("Selector value not valid", false);
             } else {
-                driver = new PhantomJSDriver();
+                DesiredCapabilities capabilities = new DesiredCapabilities();
+                capabilities.setCapability("phantomjs.binary.path", phantomJsFieldValue);
+                driver = new PhantomJSDriver(capabilities);
                 driver.get(urlTextFieldText);
                 By by = null;
                 switch (selectorMethodValue) {
@@ -70,11 +73,21 @@ public class WebDriverChecker {
             if (driver != null) {
                 driver.quit();
             }
+            return new CheckElementExistenceResult(e.getMessage(), false);
         } finally {
             if (driver != null) {
                 driver.quit();
             }
         }
-        return new CheckElementExistenceResult(null, false);
+//        return new CheckElementExistenceResult(null, false);
+    }
+
+    public static void main(String[] args){
+        phantomJsInstalled();
+    }
+
+    private static boolean phantomJsInstalled() {
+
+        return true;
     }
 }

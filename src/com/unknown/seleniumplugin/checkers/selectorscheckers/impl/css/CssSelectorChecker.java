@@ -479,7 +479,7 @@ public class CssSelectorChecker implements ISelectorChecker {
         if (!isSingleQuotSymbol(current)) {
             if (!attributeName.equals(ATTRIBUTE_VALUE_NAME)) {
                 return getCheckResultWithError("There must be a single quot after attribute value if attribute not a '" + ATTRIBUTE_VALUE_NAME + "'", position,
-                        "Add single quot after attribute value(ig attribute is not 'name')");
+                        "Add single quot after attribute value(if attribute is not 'name')");
             }
 
         } else {
@@ -751,7 +751,7 @@ public class CssSelectorChecker implements ISelectorChecker {
 
 
     private static boolean isTagNamePart(char ch) {
-        return Character.isLetter(ch) || ch == '_' || Character.isDigit(ch);
+        return Character.isLetter(ch) || ch == '_' || Character.isDigit(ch) || ch == '-';
     }
 
 
