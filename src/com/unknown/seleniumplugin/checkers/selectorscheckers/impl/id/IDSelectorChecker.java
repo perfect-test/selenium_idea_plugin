@@ -38,13 +38,13 @@ public class IDSelectorChecker implements ISelectorChecker {
                 } catch (EndOfSelector endOfSelector) {
                     return getSuccessCheckResult();
                 }
+            } else {
+                return getCheckResultWithError("Id value contains not valid symbol", position, "Delete underlined symbol");
             }
 
         } else {
             return getCheckResultWithError("Id value not starts with valid symbol", position, "Id can starts only with digit or letter");
         }
-
-        return null;
     }
 
     @Override

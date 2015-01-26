@@ -10,6 +10,7 @@ import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mike-sid on 07.08.14.
@@ -18,14 +19,6 @@ public class WebDriverChecker {
 
     public static CheckElementExistenceResult checkElementExist(String urlTextFieldText, String locatorValueTextFieldText,
                                                                 String locatorMethodTextFieldText, String phantomJsFieldValue) {
-        HttpResponse response = HttpUtils.sendGetRequest(urlTextFieldText);
-        if (response == null) {
-            return new CheckElementExistenceResult("Url not valid - no response", false);
-        }
-        int code = HttpUtils.getResponseCode(response);
-        if (!HttpUtils.isCodeGood(code)) {
-            return new CheckElementExistenceResult("Url returns not valid code(" + code + ")", false);
-        }
         WebDriver driver = null;
         try {
             SelectorMethodValue selectorMethodValue = SelectorMethodValue.getByText(locatorMethodTextFieldText);
@@ -35,7 +28,9 @@ public class WebDriverChecker {
                 DesiredCapabilities capabilities = new DesiredCapabilities();
                 capabilities.setCapability("phantomjs.binary.path", phantomJsFieldValue);
                 driver = new PhantomJSDriver(capabilities);
+                driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
                 driver.get(urlTextFieldText);
+                System.out.println(driver.getPageSource());
                 By by = null;
                 switch (selectorMethodValue) {
                     case CSS:

@@ -30,18 +30,21 @@ public class XpathSelectorTests {
     @DataProvider
     public Object[][] goodSelectors() {
         return new Object[][]{
-//                {"//home"},
-//                {"//home/dic"},
-//                {"//home/dic"},
-//                {"//BBB[@id='b1']"},
-//                {"//BBB[@name ='bbb']"},
-//                {"//BBB[normalize-space(@name) = 'bbb']"},
-//                {"//*[count(*) = 3]"},
-//                {"//*[count(BBB)= 2]"},
-//                {"//BBB[@id]"},
-//                {"//BBB[23]"},
-//                {"//acronym[not(d)]"}
-                {"//abbr[@accept    = 'd'   ]"}
+                {"//home"},
+                {"//home/dic"},
+                {"//home/dic"},
+                {"//BBB[@id='b1']"},
+                {"//BBB[@name ='bbb']"},
+                {"//BBB[normalize-space(@name) = 'bbb']"},
+                {"//*[count(*) = 3]"},
+                {"//*[count(BBB)= 2]"},
+                {"//BBB[@id]"},
+                {"//BBB[23]"},
+                {"//acronym[not(d)]"},
+                {"following-sibling::label"},
+                {"//form[@style][child::div[@class='page__b-offers__guru']]"},
+                {"//preceding::span[text()='все'][preceding-sibling::*[text()='Все производители']]"},
+                {"//*[@class='b-gurufilters__filter'][descendant::*[text()='Цена']]//input[1]"}
         };
     }
 

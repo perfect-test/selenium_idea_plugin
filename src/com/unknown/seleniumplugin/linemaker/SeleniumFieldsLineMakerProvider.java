@@ -20,7 +20,7 @@ public class SeleniumFieldsLineMakerProvider extends RelatedItemLineMarkerProvid
         if(element instanceof PsiAnnotation) {
             PsiAnnotation annotation = (PsiAnnotation) element;
             PsiJavaCodeReferenceElement referenceElement = annotation.getNameReferenceElement();
-            if (referenceElement != null) {
+            if (referenceElement != null && referenceElement.getQualifiedName() != null) {
                 if (AnnotationChecker.isFindByAnnotation(referenceElement.getQualifiedName())) {
                     NavigationGutterIconBuilder<PsiElement> builder =
                             NavigationGutterIconBuilder.create(PluginIcons.SELENIUM_LOGO).setTarget(element).setTooltipText("Selenium element field");

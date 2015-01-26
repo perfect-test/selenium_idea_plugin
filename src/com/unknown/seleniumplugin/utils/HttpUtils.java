@@ -12,6 +12,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
 
@@ -39,7 +41,7 @@ public class HttpUtils {
             getRequest.abort();
         } catch (IOException e) {
             //do nothing
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         return response;
     }
@@ -159,5 +161,20 @@ public class HttpUtils {
         } else {
             return response.getStatusLine().getStatusCode();
         }
+    }
+
+
+    public static int getCode(String url) {
+        try {
+            URL u = new URL(url);
+            HttpURLConnection huc =  (HttpURLConnection)  u.openConnection();
+            huc.setRequestMethod("GET");
+            huc.connect();
+            return huc.getResponseCode();
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return -1;
     }
 }

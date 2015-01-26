@@ -122,7 +122,7 @@ public class SeleniumSelectorAnnotator implements Annotator {
                                 }
                                 if (selectorChecker != null && isMethodCheckEnabled(selectorMethodValue, properties)) {
                                     PsiAnnotationMemberValue nameValuePairValue = nameValuePair.getValue();
-                                    if (nameValuePairValue != null) {
+                                    if (nameValuePairValue != null && nameValuePairValue instanceof PsiLiteralExpression) {
                                         String value = AnnotationsUtils.getClearAnnotationParameterValue(nameValuePairValue);
                                         System.out.println("Значение : '" + value + "'");
                                         if (value != null) {

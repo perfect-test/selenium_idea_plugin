@@ -29,6 +29,7 @@ public class SeleniumPropertiesReader {
     private static final String XPATH_EQUALITY_FUNCTION_ATTRIBUTE_PATTERN_PROPERTY_NAME = "xpath.equality.function.attribute.pattern";
 
     private static final String XPATH_FUNCTION_PARAM_NAME = "fn";
+    private static final String AXIS_FUNCTIONS = "xpath.axis.functions";
 
     private static List<String> attributesVariants;
     private static List<String> tagsVariants;
@@ -43,6 +44,7 @@ public class SeleniumPropertiesReader {
     private static List<String> xpathAttributesVariants;
     private static List<String> xpathFunctionsAttributesVariants;
     private static List<String> xpathEqualityFunctionsAttributesVariants;
+    private static List<String> axisFunctions;
 
 
     private static final Properties selectorProperties;
@@ -93,6 +95,18 @@ public class SeleniumPropertiesReader {
             xpathFunctions.addAll(getXpathEqualityFunctions());
         }
         return xpathFunctions;
+    }
+
+    public static List<String> getAxis(){
+        if(axisFunctions == null) {
+            axisFunctions = new ArrayList<String>();
+            String functionsValuesString = selectorProperties.getProperty(AXIS_FUNCTIONS);
+            if (functionsValuesString != null) {
+                String[] variants = functionsValuesString.split(",");
+                Collections.addAll(axisFunctions, variants);
+            }
+        }
+        return axisFunctions;
     }
 
 

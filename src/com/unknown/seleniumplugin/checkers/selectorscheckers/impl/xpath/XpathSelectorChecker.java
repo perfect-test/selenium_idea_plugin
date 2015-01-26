@@ -6,7 +6,6 @@ import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.EndOfSel
 import com.unknown.seleniumplugin.checkers.selectorscheckers.exceptions.NotParsebleSelectorException;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.Position;
 import com.unknown.seleniumplugin.codecomplete.properties.SeleniumPropertiesReader;
-import com.unknown.seleniumplugin.domain.CssSelectorSymbolConstants;
 import com.unknown.seleniumplugin.domain.XPathSelectorSymbolConstants;
 
 import java.util.List;
@@ -19,11 +18,17 @@ public class XpathSelectorChecker implements ISelectorChecker {
 
     private static List<String> functionNames = SeleniumPropertiesReader.getXpathFunctions();
     private static List<String> equalityFunctionNames = SeleniumPropertiesReader.getXpathEqualityFunctions();
+    private static List<String> axisFunctions = SeleniumPropertiesReader.getAxis();
     private static char[] functionNamesElementsDictionary;
+    private static boolean isAxisNow = false;
+
 
     static {
         StringBuilder functionNamesString = new StringBuilder();
         for (String functionName : functionNames) {
+            functionNamesString.append(functionName);
+        }
+        for (String functionName : axisFunctions) {
             functionNamesString.append(functionName);
         }
         functionNamesElementsDictionary = functionNamesString.toString().toCharArray();
@@ -52,14 +57,90 @@ public class XpathSelectorChecker implements ISelectorChecker {
             } catch (EndOfSelector endOfSelector) {
                 return getCheckResultWithError("Locator can't contains only '/' symbol.", position, "Add second '/' and locator value");
             }
+        } else if (isTagNameStartCharacter(next)) {
+            return parseTagNameElement(selector, position);
         } else {
             return getCheckResultWithError("Locator starts not with '//' symbol.", position, "Add '//' to the locator start");
         }
     }
 
+    private CheckResult parseAxis(String selector, Position position) throws NotParsebleSelectorException {
+        char current = getCurrentChar(selector, position);
+        if (isAfterAxisElement(current)) {
+            try {
+                getNextChar(selector, position);
+            } catch (EndOfSelector endOfSelector) {
+                return getCheckResultWithError("Locator can't ends with single ':' after axis name.", position, "Add second ':' or remove first ':'");
+            }
+            try {
+                current = getNextChar(selector, position);
+            } catch (EndOfSelector endOfSelector) {
+                return getCheckResultWithError("Locator can't ends with '::'. There must be a value after.", position, "Add value after ::");
+            }
+            if (isStartStep(current)) {
+                return parseStep(selector, position);
+            } else if (isTagNameStartCharacter(current)) {
+                return parseTagNameElement(selector, position);
+            } else if (isAnyElement(current)) {
+                try {
+                    current = getNextChar(selector, position);
+                    if (isStartAttributeCheckSymbol(current)) {
+                        return parseAttributes(selector, position);
+                    } else if (isTagNameStartCharacter(current)) {
+                        return parseTagNameElement(selector, position);
+                    } else {
+                        return getCheckResultWithError("Wrong symbol after '*' ", position,
+                                "Add '/' and next child description or '[' and predicate after '*'");
+                    }
+                } catch (EndOfSelector endOfSelector) {
+                    return getSuccessCheckResult();
+                }
+            } else {
+                return getCheckResultWithError("There must be a a tag name or attributes or * or axis name after ':'", position, "Add tag name or axis name or * or '[' after ':'");
+            }
+        } else {
+            return getCheckResultWithError("Wrong symbol after axis - there must be ':'", position, "Add :: after axis");
+        }
+    }
+
+    private boolean isAfterAxisElement(char current) {
+        return current == ':';
+    }
+
+    private boolean isAxisName(String name) {
+        return axisFunctions.contains(name);
+    }
+
     @Override
     public String getName() {
         return "xpath";
+    }
+
+    private CheckResult parseTagNameElement(String selector, Position position) throws NotParsebleSelectorException {
+        String name = parseTagName(selector, position);
+        if (position.value() == selector.length()) {
+            return getSuccessCheckResult();
+        }
+        if (isAxisName(name)) {
+            return parseAxis(selector, position);
+        } else {
+            char next = getCurrentChar(selector, position);
+            if (isStartAttributeCheckSymbol(next)) {
+                return parseAttributes(selector, position);
+            } else if (isStartStep(next)) {
+                return parseStep(selector, position);
+            } else if (isEndAttributeCheckSymbol(next)){
+                try {
+                    getNextChar(selector, position);
+                } catch (EndOfSelector endOfSelector) {
+                    return getSuccessCheckResult();
+                }
+                return getSuccessCheckResult();
+            } else {
+                return getCheckResultWithError("Wrong symbol after tag name ", position,
+                        "Add '/' and next child description or '[' and predicate after tag name");
+            }
+        }
     }
 
     private CheckResult parseStep(String selector, Position position) throws NotParsebleSelectorException {
@@ -72,10 +153,10 @@ public class XpathSelectorChecker implements ISelectorChecker {
         if (isAnyElement(next)) {
             try {
                 next = getNextChar(selector, position);
-                if (isStartStep(next)) {
-                    return parseStep(selector, position);
-                } else if (isStartAttributeCheckSymbol(next)) {
+                if (isStartAttributeCheckSymbol(next)) {
                     return parseAttributes(selector, position);
+                } else if (isTagNameStartCharacter(next)) {
+                    return parseTagNameElement(selector, position);
                 } else {
                     return getCheckResultWithError("Wrong symbol after '*' ", position,
                             "Add '/' and next child description or '[' and predicate after '*'");
@@ -84,20 +165,10 @@ public class XpathSelectorChecker implements ISelectorChecker {
                 return getSuccessCheckResult();
             }
         } else if (isTagNameStartCharacter(next)) {
-            parseTagName(selector, position);
-            if (position.value() == selector.length()) {
-                return getSuccessCheckResult();
-            }
-            next = getCurrentChar(selector, position);
-            if (isStartAttributeCheckSymbol(next)) {
-                return parseAttributes(selector, position);
-            } else if (isStartStep(next)) {
-                return parseStep(selector, position);
-            } else {
-                return getCheckResultWithError("Wrong symbol after tag name ", position,
-                        "Add '/' and next child description or '[' and predicate after tag name");
-            }
-        } else {
+            return parseTagNameElement(selector, position);
+        } else if(isStartStep(next)){
+            return parseStep(selector, position);
+        }else {
             throw new NotParsebleSelectorException("Selector not parsed");
         }
     }
@@ -156,7 +227,7 @@ public class XpathSelectorChecker implements ISelectorChecker {
                         if (attributeValue.isEmpty()) {
                             return getCheckResultWithError("Attribute value can't be empty", position, "Add attribute value");
                         }
-                        if(position.value() == selector.length()) {
+                        if (position.value() == selector.length()) {
                             return getCheckResultWithError("There must be single quot after attribute value", position,
                                     "Add single quot and ']' after attribute value");
                         }
@@ -199,139 +270,151 @@ public class XpathSelectorChecker implements ISelectorChecker {
             }
         } else if (isFunctionStartSymbol(next)) {
             String functionName = parseFunctionName(selector, position);
-            if (!functionNames.contains(functionName)) {
-                return getCheckResultWithError("Function name '" + functionName + "' is not valid. ", position,
-                        "Change the function name. It could be one of (" + functionNames + ")");
-            }
-            if (position.value() == selector.length()) {
-                return getCheckResultWithError("Locator can't ends with function name. There must be an a parameters in braces", position,
-                        "Add braces and parameters after function name");
-            }
-            next = getCurrentChar(selector, position);
-            if(!isOpeningBracesSymbol(next)) {
-                return getCheckResultWithError("Wrong symbol after function name. There must be opening braces", position,
-                        "Add '(' and parameters list after function name");
-            }
-            try {
-                parseFunctionParameters(selector, position);
-            } catch (EndOfSelector endOfSelector) {
-                return getCheckResultWithError("Locator parameters list has not closed braces", position,
-                        "Check parameters list for function. Not all braces closes");
-            }
-            try {
-                next = getNextChar(selector, position);
-            } catch (EndOfSelector endOfSelector) {
-                return getCheckResultWithError("Locator can't ends with closing brace of parameters list. There must be ']' or attribute value", position,
-                        "Add '] or '=' with attribute value after ')");
-            }
-            try {
-                skipWhitespaces(selector, position);
-            } catch (EndOfSelector endOfSelector) {
-                return getCheckResultWithError("Locator can't ends with closing brace of parameters list. There must be ']' or attribute value", position,
-                        "Add '] or '=' with attribute value after ')");
-            }
-            next = getCurrentChar(selector, position);
-            if(equalityFunctionNames.contains(functionName)) {
-                if(isNotStrongEqualitySymbol(next)) {
-                    try {
-                        next = getNextChar(selector, position);
-                    } catch (EndOfSelector endOfSelector) {
-                        return getCheckResultWithError("Locator can't ends with '>' or '<'. There must be '=' after", position, "Add '=' after ");
-                    }
-                    if(!isEqualsSymbol(next)) {
-                        return getCheckResultWithError("There must be an '=' after '>' or '<'. There must be '=' after", position, "Add '=' after ");
-                    }
-                    try {
-                        skipWhitespaces(selector, position);
-                    } catch (EndOfSelector endOfSelector) {
-                        return getCheckResultWithError("Locator can't ends with '=' symbol. There must be value after ", position, "Add parameter value in  after '='");
-                    }
-                    try {
-                        getNextChar(selector, position);
-                    } catch (EndOfSelector endOfSelector) {
-                        return getCheckResultWithError("Locator can't ends with '=' symbol. There must be value after ", position, "Add parameter value in  after '='");
-                    }
-                } else if(isEqualsSymbol(next)) {
-                    try {
-                        skipWhitespaces(selector, position);
-                    } catch (EndOfSelector endOfSelector) {
-                        return getCheckResultWithError("Locator can't ends with '=' symbol.  There must be value after", position, "Add parameter value in  after '='");
-                    }
-                    try {
-                        getNextChar(selector, position);
-                    } catch (EndOfSelector endOfSelector) {
-                        return getCheckResultWithError("Locator can't ends with '=' symbol.  There must be value after", position, "Add parameter value in  after '='");
-                    }
-                } else {
-                    return getCheckResultWithError("There must be '=' or '>' or '<' after function parameters list(if function one of " +
-                            equalityFunctionNames + "", position,
-                            "Add '=' or '>' or '<' after function parameters list");
+            if (isAxisName(functionName)) {
+                CheckResult checkResult = parseAxis(selector, position);
+                if (!checkResult.isResultSuccess()) {
+                    return checkResult;
+                }
+                if(position.value() == selector.length()) {
+                    return getSuccessCheckResult();
                 }
                 next = getCurrentChar(selector, position);
-                boolean inQuotes = false;
-                if(isSingleQuot(next)) {
-                    inQuotes = true;
+                if(isEndAttributeCheckSymbol(next)) {
                     try {
                         getNextChar(selector, position);
                     } catch (EndOfSelector endOfSelector) {
-                        return getCheckResultWithError("Locator can't ends with single quot. There must be ']' after value in quotes", position,
-                                "Add value after single quot");
+                        return getSuccessCheckResult();
                     }
+                } else if(isAfterAxisElement(next)){
+                    return parseAxis(selector, position);
                 }
-                String attributeValue = parseFunctionAttributeValue(selector, position, inQuotes);
-                if(attributeValue.isEmpty()) {
-                    return getCheckResultWithError("Attribute value can't be empty", position, "Add attribute value");
+            } else {
+                if (!functionNames.contains(functionName)) {
+                    return getCheckResultWithError("Function name '" + functionName + "' is not valid. ", position,
+                            "Change the function name. It could be one of (" + functionNames + ")");
                 }
                 if (position.value() == selector.length()) {
-                    return getCheckResultWithError("Locator can't ends with attribute value. There must be single quot or ']' ", position,
-                            "Add single quot(if starting single quot exist) or ']' after attribute value");
+                    return getCheckResultWithError("Locator can't ends with function name. There must be an a parameters in braces", position,
+                            "Add braces and parameters after function name");
+                }
+                next = getCurrentChar(selector, position);
+                if (!isOpeningBracesSymbol(next)) {
+                    return getCheckResultWithError("Wrong symbol after function name. There must be opening braces", position,
+                            "Add '(' and parameters list after function name");
+                }
+                try {
+                    parseFunctionParameters(selector, position);
+                } catch (EndOfSelector endOfSelector) {
+                    return getCheckResultWithError("Locator parameters list has not closed braces", position,
+                            "Check parameters list for function. Not all braces closes");
                 }
                 try {
                     next = getNextChar(selector, position);
                 } catch (EndOfSelector endOfSelector) {
-                    return getCheckResultWithError("Locator can't ends with attribute value. There must be single quot or ']' ", position,
-                            "Add single quot(if starting single quot exist) or ']' after attribute value");
+                    return getCheckResultWithError("Locator can't ends with closing brace of parameters list. There must be ']' or attribute value", position,
+                            "Add '] or '=' with attribute value after ')");
                 }
-                if(inQuotes) {
-                    if(!isSingleQuot(next)){
-                        return getCheckResultWithError("There must be closing single quot after attribute value", position,
-                                "Add closing single quot after attribute value");
+                try {
+                    skipWhitespaces(selector, position);
+                } catch (EndOfSelector endOfSelector) {
+                    return getCheckResultWithError("Locator can't ends with closing brace of parameters list. There must be ']' or attribute value", position,
+                            "Add '] or '=' with attribute value after ')");
+                }
+                next = getCurrentChar(selector, position);
+                if (equalityFunctionNames.contains(functionName)) {
+                    if (isNotStrongEqualitySymbol(next)) {
+                        try {
+                            next = getNextChar(selector, position);
+                        } catch (EndOfSelector endOfSelector) {
+                            return getCheckResultWithError("Locator can't ends with '>' or '<'. There must be '=' after", position, "Add '=' after ");
+                        }
+                        if (!isEqualsSymbol(next)) {
+                            return getCheckResultWithError("There must be an '=' after '>' or '<'. There must be '=' after", position, "Add '=' after ");
+                        }
+                        try {
+                            skipWhitespaces(selector, position);
+                        } catch (EndOfSelector endOfSelector) {
+                            return getCheckResultWithError("Locator can't ends with '=' symbol. There must be value after ", position, "Add parameter value in  after '='");
+                        }
+                        try {
+                            getNextChar(selector, position);
+                        } catch (EndOfSelector endOfSelector) {
+                            return getCheckResultWithError("Locator can't ends with '=' symbol. There must be value after ", position, "Add parameter value in  after '='");
+                        }
+                    } else if (isEqualsSymbol(next)) {
+                        try {
+                            skipWhitespaces(selector, position);
+                        } catch (EndOfSelector endOfSelector) {
+                            return getCheckResultWithError("Locator can't ends with '=' symbol.  There must be value after", position, "Add parameter value in  after '='");
+                        }
+                        try {
+                            getNextChar(selector, position);
+                        } catch (EndOfSelector endOfSelector) {
+                            return getCheckResultWithError("Locator can't ends with '=' symbol.  There must be value after", position, "Add parameter value in  after '='");
+                        }
+                    } else {
+                        return getCheckResultWithError("There must be '=' or '>' or '<' after function parameters list(if function one of " +
+                                        equalityFunctionNames + "", position,
+                                "Add '=' or '>' or '<' after function parameters list");
+                    }
+                    next = getCurrentChar(selector, position);
+                    boolean inQuotes = false;
+                    if (isSingleQuot(next)) {
+                        inQuotes = true;
+                        try {
+                            getNextChar(selector, position);
+                        } catch (EndOfSelector endOfSelector) {
+                            return getCheckResultWithError("Locator can't ends with single quot. There must be ']' after value in quotes", position,
+                                    "Add value after single quot");
+                        }
+                    }
+                    String attributeValue = parseFunctionAttributeValue(selector, position, inQuotes);
+                    if (attributeValue.isEmpty()) {
+                        return getCheckResultWithError("Attribute value can't be empty", position, "Add attribute value");
+                    }
+                    if (position.value() == selector.length()) {
+                        return getCheckResultWithError("Locator can't ends with attribute value. There must be single quot or ']' ", position,
+                                "Add single quot(if starting single quot exist) or ']' after attribute value");
                     }
                     try {
                         next = getNextChar(selector, position);
                     } catch (EndOfSelector endOfSelector) {
-                        return getCheckResultWithError("Locator can't ends with closing single quot without ']' symbol", position,
-                                "Add ']' after closing single quot");
+                        return getCheckResultWithError("Locator can't ends with attribute value. There must be single quot or ']' ", position,
+                                "Add single quot(if starting single quot exist) or ']' after attribute value");
                     }
-                }
-                if(!isEndAttributeCheckSymbol(next)) {
-                    return getCheckResultWithError("Wrong element after attribute value. There must be ']' after ", position,
-                            "After attribute value should be an ']' symbol");
-                }
-                try {
-                    getNextChar(selector, position);
-                } catch (EndOfSelector endOfSelector) {
-                    return getSuccessCheckResult();
-                }
-            } else {
-                if(!isEndAttributeCheckSymbol(next)) {
-                    return getCheckResultWithError("Wrong element after function parameters list. There must be ']' after ", position,
-                            "After parameters should be an ']' symbol");
-                }
-                try {
-                    getNextChar(selector, position);
-                } catch (EndOfSelector endOfSelector) {
+                    if (inQuotes) {
+                        if (!isSingleQuot(next)) {
+                            return getCheckResultWithError("There must be closing single quot after attribute value", position,
+                                    "Add closing single quot after attribute value");
+                        }
+                        try {
+                            next = getNextChar(selector, position);
+                        } catch (EndOfSelector endOfSelector) {
+                            return getCheckResultWithError("Locator can't ends with closing single quot without ']' symbol", position,
+                                    "Add ']' after closing single quot");
+                        }
+                    }
+                    if (!isEndAttributeCheckSymbol(next)) {
+                        return getCheckResultWithError("Wrong element after attribute value. There must be ']' after ", position,
+                                "After attribute value should be an ']' symbol");
+                    }
+                    try {
+                        getNextChar(selector, position);
+                    } catch (EndOfSelector endOfSelector) {
+                        return getSuccessCheckResult();
+                    }
+                } else if(isEndAttributeCheckSymbol(next)){
                     return getSuccessCheckResult();
                 }
             }
         } else if (isIndexSymbol(next)) {
             parseIndex(selector, position);
-            if(position.value() == selector.length()) {
+            if (position.value() == selector.length()) {
                 return getCheckResultWithError("Locator can't ends with index value. There must be ']' after", position,
                         "Add ']' after index value");
             }
             next = getCurrentChar(selector, position);
-            if(!isEndAttributeCheckSymbol(next)) {
+            if (!isEndAttributeCheckSymbol(next)) {
                 return getCheckResultWithError("Wrong symbol after index end.  There must be ']' after ", position, "After index must be an a ']' symbol. Delete wrong");
             }
             try {
@@ -339,15 +422,18 @@ public class XpathSelectorChecker implements ISelectorChecker {
             } catch (EndOfSelector endOfSelector) {
                 return getSuccessCheckResult();
             }
-        } else {
-            throw new NotParsebleSelectorException("No function with such name supported");
+        } else if(isEndAttributeCheckSymbol(next)){
+            return getCheckResultWithError("There must be an @ or function name or index after '['",position,"Add @ or tag name or index after '['");
         }
         char current = getCurrentChar(selector, position);
+
         if (isStartStep(current)) {
             return parseStep(selector, position);
         } else if (isStartAttributeCheckSymbol(current)) {
             return parseAttributes(selector, position);
-        } else {
+        } else if (isEndAttributeCheckSymbol(current)){
+            return getSuccessCheckResult();
+        }else {
             return getCheckResultWithError("Wrong symbol after attributes", position,
                     "After attributes there can be only '[' with new attribute value specifying or '/' for new step");
         }
@@ -361,11 +447,11 @@ public class XpathSelectorChecker implements ISelectorChecker {
     private void parseFunctionParameters(String selector, Position position) throws EndOfSelector {
         int openingBracesCount = 1;
         int closingBracesCount = 0;
-        while(openingBracesCount != closingBracesCount) {
+        while (openingBracesCount != closingBracesCount) {
             char next = getNextChar(selector, position);
-            if(isOpeningBracesSymbol(next)) {
+            if (isOpeningBracesSymbol(next)) {
                 openingBracesCount++;
-            } else if(isClosingBracesSymbol(next)) {
+            } else if (isClosingBracesSymbol(next)) {
                 closingBracesCount++;
             }
         }
@@ -404,6 +490,11 @@ public class XpathSelectorChecker implements ISelectorChecker {
 
     private boolean isFunctionStartSymbol(char ch) {
         for (String functionName : functionNames) {
+            if (functionName.startsWith(String.valueOf(ch))) {
+                return true;
+            }
+        }
+        for (String functionName : axisFunctions) {
             if (functionName.startsWith(String.valueOf(ch))) {
                 return true;
             }
@@ -530,18 +621,18 @@ public class XpathSelectorChecker implements ISelectorChecker {
         char next = getCurrentChar(selector, position);
         int startValuePosition = position.value();
         boolean attributeValueNotFinished;
-        if(inQuotes) {
-            attributeValueNotFinished= !isSingleQuot(next);
+        if (inQuotes) {
+            attributeValueNotFinished = !isSingleQuot(next);
         } else {
-            attributeValueNotFinished= !isEndAttributeCheckSymbol(next);
+            attributeValueNotFinished = !isEndAttributeCheckSymbol(next);
         }
         while (attributeValueNotFinished) {
             try {
                 next = getNextChar(selector, position);
-                if(inQuotes) {
-                    attributeValueNotFinished= !isSingleQuot(next);
+                if (inQuotes) {
+                    attributeValueNotFinished = !isSingleQuot(next);
                 } else {
-                    attributeValueNotFinished= !isEndAttributeCheckSymbol(next);
+                    attributeValueNotFinished = !isEndAttributeCheckSymbol(next);
                 }
             } catch (EndOfSelector e) {
                 attributeValueNotFinished = false;
@@ -551,7 +642,6 @@ public class XpathSelectorChecker implements ISelectorChecker {
         position.decrement();
         return selector.substring(startValuePosition, endValuePosition);
     }
-
 
 
     private String parseFunctionName(String selector, Position position) {
@@ -589,7 +679,7 @@ public class XpathSelectorChecker implements ISelectorChecker {
     }
 
     private static boolean isTagNamePart(char ch) {
-        return Character.isLetter(ch) || ch == '_' || Character.isDigit(ch);
+        return Character.isLetter(ch) || ch == '_' || Character.isDigit(ch) || ch == '-';
     }
 
 

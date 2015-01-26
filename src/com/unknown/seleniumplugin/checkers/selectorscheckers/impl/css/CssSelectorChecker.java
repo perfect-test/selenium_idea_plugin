@@ -526,7 +526,7 @@ public class CssSelectorChecker implements ISelectorChecker {
                         "Remove ':' after ']' symbol or add locator for function after ':'");
             } else if (isClosingElement(current)) {
                 return getCheckResultWithError("There can't be ] after whitespace after ]. ", position,
-                        "Remove ':' after ']' symbol ");
+                        "Remove ']' after ']' symbol ");
             }
         } else {
             if (isClassStartCharacter(current)) {
@@ -537,6 +537,9 @@ public class CssSelectorChecker implements ISelectorChecker {
                 return getCheckResultWithError("There can't be tag name after symbol after ']' without space", position, "Add space between ']' and '.'");
             } else if (isFunctionStartElement(current)) {
                 return parseFunction(selector, position);
+            } else if (isClosingElement(current)) {
+                return getCheckResultWithError("There can't be ] after ]. ", position,
+                        "Remove ']' after ']' symbol ");
             }
         }
         return getSuccessCheckResult();
