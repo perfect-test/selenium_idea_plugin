@@ -16,7 +16,10 @@ import com.unknown.seleniumplugin.settings.ui.SeleniumSettingsDialog;
 public class SeleniumPluginSettingsToolbarAction extends AnAction {
 
     public void actionPerformed(AnActionEvent e) {
-        SeleniumSettingsDialog seleniumSettingsDialog = new SeleniumSettingsDialog(e.getProject());
-        seleniumSettingsDialog.show();
+        if(e != null && e.getProject() != null && !e.getProject().isDisposed()) {
+            SeleniumSettingsDialog seleniumSettingsDialog = new SeleniumSettingsDialog(e.getProject());
+            seleniumSettingsDialog.show();
+        }
+
     }
 }

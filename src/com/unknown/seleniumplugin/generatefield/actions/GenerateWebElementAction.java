@@ -38,4 +38,21 @@ public class GenerateWebElementAction extends AnAction {
         }.execute();
     }
 
+    @Override
+    public void update(AnActionEvent e) {
+        super.update(e);
+        boolean available = isAvailable(e);
+        e.getPresentation().setEnabled(available);
+        e.getPresentation().setVisible(available);
+    }
+
+    protected boolean isAvailable(AnActionEvent actionEvent) {
+        PsiClass psiClass = PsiCommonUtils.getPsiClassFromContext(actionEvent);
+        if (psiClass != null) {
+            return true;
+        }
+        return false;
+    }
+
+
 }

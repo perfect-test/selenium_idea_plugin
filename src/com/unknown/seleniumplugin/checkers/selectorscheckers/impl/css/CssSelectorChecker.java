@@ -247,6 +247,8 @@ public class CssSelectorChecker implements ISelectorChecker {
                 } else if (isSingleQuotSymbol(current)) {
                     return getCheckResultWithError("There can't be an ' without '[' and attribute name", position,
                             "Remove '[' after identifier of add searching by attribute name of value");
+                } else if(isTagNameStartCharacter(current)){
+                    return parseStartTag(selector, position);
                 }
             } catch (EndOfSelector endOfSelector) {
                 getSuccessCheckResult();

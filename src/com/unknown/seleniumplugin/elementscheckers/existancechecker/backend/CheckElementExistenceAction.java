@@ -1,32 +1,18 @@
 package com.unknown.seleniumplugin.elementscheckers.existancechecker.backend;
 
 import com.intellij.CommonBundle;
-import com.intellij.codeInsight.TargetElementUtilBase;
-import com.intellij.codeInsight.hint.HintManager;
-import com.intellij.codeInsight.hint.HintManagerImpl;
-import com.intellij.find.FindBundle;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
-import com.intellij.psi.impl.source.tree.java.PsiNameValuePairImpl;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.unknown.seleniumplugin.domain.SelectorMethodValue;
 import com.unknown.seleniumplugin.elementscheckers.existancechecker.ExistenceCheckUtils;
-import com.unknown.seleniumplugin.elementscheckers.existancechecker.ui.CheckElementExistenceDialog;
-import com.unknown.seleniumplugin.generatefield.backend.FieldsGenerationTemplates;
-import com.unknown.seleniumplugin.pluginproperties.GlobalPluginProperties;
-import com.unknown.seleniumplugin.utils.AnnotationChecker;
 import com.unknown.seleniumplugin.utils.PsiCommonUtils;
-
-import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by mike-sid on 05.08.14.
@@ -58,16 +44,43 @@ public class CheckElementExistenceAction extends AnAction {
             locatorElement = elementAt.getParent();
             if (locatorElement != null && locatorElement instanceof PsiLiteralExpression) {
                 locator = PsiCommonUtils.getLocatorValue(locatorElement);
-                selectorMethodValue = PsiCommonUtils.getSelectorValue(locatorElement);
+                selectorMethodValue = PsiCommonUtils.getSelectorMethodValue(locatorElement);
                 System.out.println(locator + ":" + selectorMethodValue);
             }
         }
-        if(selectorMethodValue != null && locatorElement != null && locator != null) {
+        if (selectorMethodValue != null && locatorElement != null && locator != null) {
             ExistenceCheckUtils.showCheckExistenceDialog(project, locator, selectorMethodValue.getSelectorMethod(),
                     PsiTreeUtil.getParentOfType(locatorElement, PsiClass.class), locatorElement);
         } else {
             showError(project);
         }
+    }
+
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
+        Project project = e.getProject();
+        if(project != null && psiFile!=null) {
+            final Editor editor = FileEditorManager.getInstance(e.getProject()).getSelectedTextEditor();
+            if(editor != null) {
+                int offset = editor.getCaretModel().getOffset();
+                PsiElement elementAt = psiFile.findElementAt(offset);
+                if(elementAt != null) {
+                    PsiElement locatorElement = elementAt.getParent();
+                    if (locatorElement != null && locatorElement instanceof PsiLiteralExpression) {
+                        if(PsiCommonUtils.getLocatorValue(locatorElement)!= null) {
+                            e.getPresentation().setEnabled(true);
+                            e.getPresentation().setVisible(true);
+                            return;
+                        }
+                    }
+                }
+
+            }
+        }
+        e.getPresentation().setEnabled(false);
+        e.getPresentation().setVisible(false);
+
     }
 
     private static void showError(Project project) {

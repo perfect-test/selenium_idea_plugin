@@ -31,7 +31,7 @@ public class PsiCommonUtils {
     }
 
 
-    public static SelectorMethodValue getSelectorValue(PsiElement parent) {
+    public static SelectorMethodValue getSelectorMethodValue(PsiElement parent) {
         PsiElement psiElement = parent.getParent();
         if (psiElement != null) {
             PsiElement grandParent = psiElement.getParent();

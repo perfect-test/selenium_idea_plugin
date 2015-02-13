@@ -3,7 +3,6 @@ package com.unknown.seleniumplugin.codecomplete;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.*;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import com.unknown.seleniumplugin.codecomplete.generators.ICompletionVariantsGenerator;
 import com.unknown.seleniumplugin.codecomplete.generators.impl.TagNameCompletionVariantsGenerator;
@@ -14,7 +13,6 @@ import com.unknown.seleniumplugin.codecomplete.inserthandlers.impl.CssInsertHand
 import com.unknown.seleniumplugin.codecomplete.inserthandlers.impl.XpathInsertHandler;
 import com.unknown.seleniumplugin.domain.SelectorMethodValue;
 import com.unknown.seleniumplugin.domain.SeleniumCompletionVariant;
-import com.unknown.seleniumplugin.utils.AnnotationChecker;
 import com.unknown.seleniumplugin.utils.AnnotationsUtils;
 import com.unknown.seleniumplugin.utils.PsiCommonUtils;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +39,7 @@ public class SelectorCompletionContributor extends CompletionContributor {
                 PsiElement locatorElement = parameters.getPosition().getParent();
                 if (locatorElement != null && locatorElement instanceof PsiLiteralExpression) {
                     locator = PsiCommonUtils.getLocatorValue(locatorElement);
-                    selectorMethodValue = PsiCommonUtils.getSelectorValue(locatorElement);
+                    selectorMethodValue = PsiCommonUtils.getSelectorMethodValue(locatorElement);
                     System.out.println(locator + ":" + selectorMethodValue);
                 }
                 if (selectorMethodValue != null && locator != null) {

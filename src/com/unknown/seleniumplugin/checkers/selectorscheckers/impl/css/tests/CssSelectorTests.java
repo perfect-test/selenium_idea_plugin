@@ -53,7 +53,8 @@ public class CssSelectorTests {
                 {"div[x=''] a[a=''"},
                 {"div[x=''] a[a=']"},
                 {"*:nth-child"},
-                {"#masthead-search-term["}
+                {"#masthead-search-term["},
+                 {"#masthead-search button[q']"}
         };
     }
 
@@ -71,7 +72,7 @@ public class CssSelectorTests {
                 {"#div[   name =  'mailbox__register'    ]"},
                 {"#div[   name =  mailbox__register    ]"},
                 {"#div[   attributename =  'mailbox_     _adf asf asdf adf adf register']         "},
-                {"#mailbox tagName[class='']"},
+                {"#mailbox tagName[class='d']"},
                 {"#mailbox tagName.className"},
                 {"#mailbox__auth__button"},
                 {"#mailbox #innerbox"},
