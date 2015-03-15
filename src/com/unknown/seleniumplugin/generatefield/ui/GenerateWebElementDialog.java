@@ -37,7 +37,6 @@ public class GenerateWebElementDialog extends DialogWrapper {
     }
 
     private void setLocatorMethods() {
-//        methodSelectElement.addItem("");
         for (SelectorMethodValue value : SelectorMethodValue.values()) {
             methodSelectElement.addItem(value.getSelectorMethod());
         }

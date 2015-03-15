@@ -59,9 +59,25 @@ public class XpathSelectorChecker implements ISelectorChecker {
             }
         } else if (isTagNameStartCharacter(next)) {
             return parseTagNameElement(selector, position);
+        } else if (isDot(next)) {
+            try {
+                next = getNextChar(selector, position);
+                if (isStartStep(next)) {
+                    return parseStep(selector, position);
+                } else {
+                    return getCheckResultWithError("Wrong symbol after first '.' in locator", position,
+                            "Delete wrong symbol or add  '/' after '.'");
+                }
+            } catch (EndOfSelector endOfSelector) {
+                return getCheckResultWithError("Locator can't contains only '/' symbol.", position, "Add second '/' and locator value");
+            }
         } else {
             return getCheckResultWithError("Locator starts not with '//' symbol.", position, "Add '//' to the locator start");
         }
+    }
+
+    private boolean isDot(char next) {
+        return next == '.';
     }
 
     private CheckResult parseAxis(String selector, Position position) throws NotParsebleSelectorException {
@@ -129,7 +145,7 @@ public class XpathSelectorChecker implements ISelectorChecker {
                 return parseAttributes(selector, position);
             } else if (isStartStep(next)) {
                 return parseStep(selector, position);
-            } else if (isEndAttributeCheckSymbol(next)){
+            } else if (isEndAttributeCheckSymbol(next)) {
                 try {
                     getNextChar(selector, position);
                 } catch (EndOfSelector endOfSelector) {
@@ -166,9 +182,9 @@ public class XpathSelectorChecker implements ISelectorChecker {
             }
         } else if (isTagNameStartCharacter(next)) {
             return parseTagNameElement(selector, position);
-        } else if(isStartStep(next)){
+        } else if (isStartStep(next)) {
             return parseStep(selector, position);
-        }else {
+        } else {
             throw new NotParsebleSelectorException("Selector not parsed");
         }
     }
@@ -275,17 +291,17 @@ public class XpathSelectorChecker implements ISelectorChecker {
                 if (!checkResult.isResultSuccess()) {
                     return checkResult;
                 }
-                if(position.value() == selector.length()) {
+                if (position.value() == selector.length()) {
                     return getSuccessCheckResult();
                 }
                 next = getCurrentChar(selector, position);
-                if(isEndAttributeCheckSymbol(next)) {
+                if (isEndAttributeCheckSymbol(next)) {
                     try {
                         getNextChar(selector, position);
                     } catch (EndOfSelector endOfSelector) {
                         return getSuccessCheckResult();
                     }
-                } else if(isAfterAxisElement(next)){
+                } else if (isAfterAxisElement(next)) {
                     return parseAxis(selector, position);
                 }
             } else {
@@ -403,7 +419,7 @@ public class XpathSelectorChecker implements ISelectorChecker {
                     } catch (EndOfSelector endOfSelector) {
                         return getSuccessCheckResult();
                     }
-                } else if(isEndAttributeCheckSymbol(next)){
+                } else if (isEndAttributeCheckSymbol(next)) {
                     return getSuccessCheckResult();
                 }
             }
@@ -422,8 +438,8 @@ public class XpathSelectorChecker implements ISelectorChecker {
             } catch (EndOfSelector endOfSelector) {
                 return getSuccessCheckResult();
             }
-        } else if(isEndAttributeCheckSymbol(next)){
-            return getCheckResultWithError("There must be an @ or function name or index after '['",position,"Add @ or tag name or index after '['");
+        } else if (isEndAttributeCheckSymbol(next)) {
+            return getCheckResultWithError("There must be an @ or function name or index after '['", position, "Add @ or tag name or index after '['");
         }
         char current = getCurrentChar(selector, position);
 
@@ -431,9 +447,9 @@ public class XpathSelectorChecker implements ISelectorChecker {
             return parseStep(selector, position);
         } else if (isStartAttributeCheckSymbol(current)) {
             return parseAttributes(selector, position);
-        } else if (isEndAttributeCheckSymbol(current)){
+        } else if (isEndAttributeCheckSymbol(current)) {
             return getSuccessCheckResult();
-        }else {
+        } else {
             return getCheckResultWithError("Wrong symbol after attributes", position,
                     "After attributes there can be only '[' with new attribute value specifying or '/' for new step");
         }
