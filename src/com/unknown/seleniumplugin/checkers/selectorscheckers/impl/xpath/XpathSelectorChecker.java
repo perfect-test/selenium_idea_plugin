@@ -71,8 +71,20 @@ public class XpathSelectorChecker implements ISelectorChecker {
             } catch (EndOfSelector endOfSelector) {
                 return getCheckResultWithError("Locator can't contains only '/' symbol.", position, "Add second '/' and locator value");
             }
+        } else if (isAnyElement(next)) {
+            try {
+                next = getNextChar(selector, position);
+                if (isStartStep(next)) {
+                    return parseStep(selector, position);
+                } else {
+                    return getCheckResultWithError("Wrong symbol after '*' ", position,
+                            "Add '/' and next child description or '[' and predicate after '*'");
+                }
+            } catch (EndOfSelector endOfSelector) {
+                return getSuccessCheckResult();
+            }
         } else {
-            return getCheckResultWithError("Locator starts not with '//' symbol.", position, "Add '//' to the locator start");
+            return getCheckResultWithError("Locator starts not with '//' or '.' or '*' symbols.", position, "Add '//' or '.' or '*' to the locator start");
         }
     }
 

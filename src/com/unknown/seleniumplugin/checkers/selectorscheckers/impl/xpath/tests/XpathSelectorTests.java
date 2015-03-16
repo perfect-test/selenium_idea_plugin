@@ -45,7 +45,8 @@ public class XpathSelectorTests {
                 {"//form[@style][child::div[@class='page__b-offers__guru']]"},
                 {"//preceding::span[text()='все'][preceding-sibling::*[text()='Все производители']]"},
                 {"//*[@class='b-gurufilters__filter'][descendant::*[text()='Цена']]//input[1]"},
-                {".//a"}
+                {".//a"},
+                {"*"}
         };
     }
 
