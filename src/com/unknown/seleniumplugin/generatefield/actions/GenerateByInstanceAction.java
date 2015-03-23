@@ -25,8 +25,6 @@ public class GenerateByInstanceAction extends EditorAction {
     protected GenerateByInstanceAction(EditorActionHandler defaultHandler) {
         super(defaultHandler);
     }
-	private By by = By.cssSelector("");
-
 
     private static class GenerateByHandler extends EditorWriteActionHandler {
         private GenerateByHandler() {
