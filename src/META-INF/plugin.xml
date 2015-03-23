@@ -68,6 +68,12 @@
               text="Check Element Existence" description="Checks element existence on page (with phantomJs)">
           <add-to-group group-id="EditorPopupMenu" anchor="last"/>
       </action>
+      <action id="SeleniumPlugin.GenerateByAction"
+              class="com.unknown.seleniumplugin.generatefield.actions.GenerateByInstanceAction"
+              text="Generate By object" description="Generate By object">
+          <add-to-group group-id="EditorActions" anchor="last"/>
+          <keyboard-shortcut keymap="$default" first-keystroke="meta B"/>
+      </action>
   </actions>
 
 </idea-plugin>
