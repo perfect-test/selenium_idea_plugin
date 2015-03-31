@@ -9,6 +9,11 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -46,7 +51,13 @@ public class XpathSelectorTests {
                 {"//preceding::span[text()='все'][preceding-sibling::*[text()='Все производители']]"},
                 {"//*[@class='b-gurufilters__filter'][descendant::*[text()='Цена']]//input[1]"},
                 {".//a"},
-                {"*"}
+                {"*"},
+                {".//table[@class='object_table']//tr[child::*/text()='Улица:']/td[2]"},
+                {".//ul[contains(@class,'ui-multiselect-checkboxes') and parent::*[contains(@style, 'display: block')]]"},
+                {".//*[@id='sideRight']/div[count(descendant::*[contains(text(),'Брокер онлайн')]) > 0]"},
+                {".//*[@id='content']//input | .//*[@id='content']//select"},
+                {".//*[@class='ad_div']//table[child::*//*[contains(text(),'Отменить')]]"}
+
         };
     }
 

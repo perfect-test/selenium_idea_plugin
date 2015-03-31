@@ -58,13 +58,19 @@ public class SeleniumSelectorAnnotator implements Annotator {
             boolean isCheckEnabled = properties.isTrueValue(SeleniumSettingsParams.IS_SELECTOR_CHECK_ENABLED);
             if (isCheckEnabled) {
                 PsiElement selectorValueElement = getSelectorValueFromExpression(callExpression);
-                SelectorMethodValue findMethod = getFindMethodFromExpressionText(callExpression.getText());
-                if (findMethod != null && selectorValueElement != null) {
-                    setSelectorChecker(findMethod);
-                    if (selectorChecker != null && isMethodCheckEnabled(findMethod, properties)) {
-                        String selectorValue = replaceUnnecessarySymbols(selectorValueElement.getText());
-                        System.out.println("Expression value : " + findMethod + " : " + selectorValue);
-                        checkError(selectorValue, selectorValueElement, holder);
+                if(selectorValueElement instanceof PsiPolyadicExpression) {
+                    TextRange range = new TextRange(selectorValueElement.getTextRange().getStartOffset(),
+                            selectorValueElement.getTextRange().getEndOffset());
+                    holder.createWarningAnnotation(range, "Check of dynamic locator's not supported");
+                } else {
+                    SelectorMethodValue findMethod = getFindMethodFromExpressionText(callExpression.getText());
+                    if (findMethod != null && selectorValueElement != null) {
+                        setSelectorChecker(findMethod);
+                        if (selectorChecker != null && isMethodCheckEnabled(findMethod, properties)) {
+                            String selectorValue = replaceUnnecessarySymbols(selectorValueElement.getText());
+                            System.out.println("Expression value : " + findMethod + " : " + selectorValue);
+                            checkError(selectorValue, selectorValueElement, holder);
+                        }
                     }
                 }
             }
@@ -78,7 +84,7 @@ public class SeleniumSelectorAnnotator implements Annotator {
     private PsiElement getSelectorValueFromExpression(PsiElement psiElement) {
         PsiElement[] children = psiElement.getChildren();
         for (PsiElement child : children) {
-            if (child instanceof PsiLiteralExpression) {
+            if (child instanceof PsiLiteralExpression || child instanceof PsiPolyadicExpression) {
                 return child;
             } else {
                 PsiElement subChildValue = getSelectorValueFromExpression(child);
@@ -128,6 +134,10 @@ public class SeleniumSelectorAnnotator implements Annotator {
                                         if (value != null) {
                                             checkError(value, nameValuePairValue, holder);
                                         }
+                                    } else if(nameValuePairValue instanceof PsiPolyadicExpression) {
+                                        TextRange range = new TextRange(nameValuePairValue.getTextRange().getStartOffset(),
+                                                nameValuePairValue.getTextRange().getEndOffset());
+                                        holder.createWarningAnnotation(range, "Check of dynamic locator's not supported");
                                     }
                                 }
                             }

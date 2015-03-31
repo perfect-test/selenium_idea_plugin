@@ -8,6 +8,10 @@ import com.unknown.seleniumplugin.checkers.selectorscheckers.impl.Position;
 import com.unknown.seleniumplugin.codecomplete.properties.SeleniumPropertiesReader;
 import com.unknown.seleniumplugin.domain.XPathSelectorSymbolConstants;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.util.List;
 
 /**
@@ -21,6 +25,8 @@ public class XpathSelectorChecker implements ISelectorChecker {
     private static List<String> axisFunctions = SeleniumPropertiesReader.getAxis();
     private static char[] functionNamesElementsDictionary;
     private static boolean isAxisNow = false;
+    private XPathFactory factory = XPathFactory.newInstance();
+    private XPath xpath = factory.newXPath();
 
 
     static {
@@ -36,6 +42,12 @@ public class XpathSelectorChecker implements ISelectorChecker {
 
     @Override
     public CheckResult checkSelectorValid(String selector) throws NotParsebleSelectorException {
+        try {
+            XPathExpression expr = xpath.compile(selector);
+            return getSuccessCheckResult();
+        } catch (XPathExpressionException e) {
+//            e.printStackTrace();
+        }
         Position position = new Position();
         if (selector.isEmpty()) {
             return getCheckResultWithError("Selector can't be empty", position, "Add some value");
