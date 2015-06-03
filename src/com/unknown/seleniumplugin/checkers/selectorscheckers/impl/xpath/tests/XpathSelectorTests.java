@@ -56,7 +56,8 @@ public class XpathSelectorTests {
                 {".//ul[contains(@class,'ui-multiselect-checkboxes') and parent::*[contains(@style, 'display: block')]]"},
                 {".//*[@id='sideRight']/div[count(descendant::*[contains(text(),'Брокер онлайн')]) > 0]"},
                 {".//*[@id='content']//input | .//*[@id='content']//select"},
-                {".//*[@class='ad_div']//table[child::*//*[contains(text(),'Отменить')]]"}
+                {".//*[@class='ad_div']//table[child::*//*[contains(text(),'Отменить')]]"},
+                {".//div[@class='phone_number'][text()!='']"}
 
         };
     }
