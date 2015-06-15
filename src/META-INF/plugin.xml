@@ -2,7 +2,7 @@
     <depends>com.intellij.modules.java</depends>
   <id>SeleniumPlugin</id>
   <name>Selenium plugin</name>
-  <version>1.2.2</version>
+  <version>1.2.4</version>
   <vendor email="mail@perfect-test.com" url="http://www.perfect-test.com">Perfect Test</vendor>
 
   <description><![CDATA[
@@ -11,8 +11,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
-    1)some hard xpath expression check fixed
-    2)fixed errors for dynamic locators
+    Fixed bug in class checker
     ]]>
   </change-notes>
 

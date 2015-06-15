@@ -24,7 +24,7 @@ public class TagNameSelectorChecker implements ISelectorChecker {
             return getCheckResultWithError("Selector can't be empty", position, "Add an tag name value");
         }
         char current = getCurrentChar(selector, position);
-        if(isTagNamePart(current)) {
+        if (isTagNamePart(current)) {
             parseTagName(selector, position);
             if (position.value() == selector.length()) {
                 return getSuccessCheckResult();
@@ -38,14 +38,14 @@ public class TagNameSelectorChecker implements ISelectorChecker {
                 } catch (EndOfSelector endOfSelector) {
                     return getSuccessCheckResult();
                 }
+            } else {
+                return getSuccessCheckResult();
             }
 
         } else {
             return getCheckResultWithError("Tag name value not starts with valid symbol", position,
                     "Tag name can start only with number or letter");
         }
-
-        return null;
     }
 
     @Override

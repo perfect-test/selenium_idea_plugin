@@ -37,14 +37,13 @@ public class ClassNameSelectorChecker implements ISelectorChecker {
                 } catch (EndOfSelector endOfSelector) {
                     return getSuccessCheckResult();
                 }
+            } else {
+                return getSuccessCheckResult();
             }
-
         } else {
             return getCheckResultWithError("Class name value not starts with valid symbol", position,
                     "Class name can start only with number or letter");
         }
-
-        return null;
     }
 
     @Override
