@@ -2,7 +2,7 @@
     <depends>com.intellij.modules.java</depends>
   <id>SeleniumPlugin</id>
   <name>Selenium plugin</name>
-  <version>1.2.4</version>
+  <version>1.2.5</version>
   <vendor email="mail@perfect-test.com" url="http://www.perfect-test.com">Perfect Test</vendor>
 
   <description><![CDATA[
@@ -11,7 +11,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-    Fixed bug in class checker
+    Added cool features to simple selenium project:<br>
+    1)added listener to testNg and rule to JUnit for screenshot taking<br>
+    2)added functionality of reading properties from config file
     ]]>
   </change-notes>
 
