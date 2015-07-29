@@ -27,7 +27,7 @@ public class FixVariantsDialog extends DialogWrapper {
         this.startLocator = locator;
         setStates();
         init();
-        setTitle("Fix locator popup");
+        setTitle("Fix Locator Popup");
         locatorValueTextField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 checkLocator(getCurrentLocatorValue());

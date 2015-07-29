@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  * Created by mike-sid on 05.08.14.
  */
 public class CheckElementExistenceAction extends AnAction {
-    private static final String ERROR_MESSAGE = "Check existence can be done only on @FindBy of findElement(s) function. Move cursor to locator value and try again";
+    private static final String ERROR_MESSAGE = "Check existence can be done only on @FindBy, findElement(s) or Selenide $ function. Move cursor to locator value and try again";
 
 
     public void actionPerformed(AnActionEvent e) {

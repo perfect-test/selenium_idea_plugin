@@ -6,6 +6,7 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.tree.java.PsiMethodCallExpressionImpl;
 import com.unknown.seleniumplugin.checkers.quickfix.SelectorVariantsQuickFix;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.CheckResult;
 import com.unknown.seleniumplugin.checkers.selectorscheckers.ISelectorChecker;
@@ -41,9 +42,45 @@ public class SeleniumSelectorAnnotator implements Annotator {
         } else if (element instanceof PsiMethodCallExpression) {
             if (isByReference(element)) {
                 checkByExpression(element, holder);
+            } else if(isSelenideMethodReference(element)) {
+                checkSelenideExpression(element, holder);
             }
 
         }
+    }
+
+    private void checkSelenideExpression(PsiElement element, AnnotationHolder holder) {
+        PsiMethodCallExpression callExpression = (PsiMethodCallExpression) element;
+        PropertiesComponent properties = PropertiesComponent.getInstance(element.getProject());
+        if (properties.isValueSet(SeleniumSettingsParams.IS_SELECTOR_CHECK_ENABLED)) {
+            boolean isCheckEnabled = properties.isTrueValue(SeleniumSettingsParams.IS_SELECTOR_CHECK_ENABLED);
+            if (isCheckEnabled) {
+                PsiElement selectorValueElement = getSelectorValueFromExpression(callExpression);
+                if(selectorValueElement instanceof PsiPolyadicExpression) {
+                    TextRange range = new TextRange(selectorValueElement.getTextRange().getStartOffset(),
+                            selectorValueElement.getTextRange().getEndOffset());
+                    holder.createWarningAnnotation(range, "Check of dynamic locator's not supported");
+                } else {
+                    SelectorMethodValue findMethod = SelectorMethodValue.CSS;
+                    if (selectorValueElement != null) {
+                        setSelectorChecker(findMethod);
+                        if (selectorChecker != null && isMethodCheckEnabled(findMethod, properties)) {
+                            String selectorValue = replaceUnnecessarySymbols(selectorValueElement.getText());
+                            System.out.println("Selenide Expression value : " + findMethod + " : " + selectorValue);
+                            checkError(selectorValue, selectorValueElement, holder);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isSelenideMethodReference(PsiElement element) {
+        String  referenceName = ((PsiMethodCallExpressionImpl) element).getMethodExpression().getReferenceName();
+        if(referenceName != null) {
+            return referenceName.contains("$");
+        }
+        return false;
     }
 
 
