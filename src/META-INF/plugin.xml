@@ -2,7 +2,7 @@
     <depends>com.intellij.modules.java</depends>
   <id>SeleniumPlugin</id>
   <name>Selenium plugin</name>
-  <version>1.2.6</version>
+  <version>1.3</version>
   <vendor email="mail@perfect-test.com" url="http://www.perfect-test.com">Perfect Test</vendor>
 
   <description><![CDATA[
@@ -12,6 +12,7 @@
 
   <change-notes><![CDATA[
     Added Selenide(http://selenide.org) support in locators check, elements existence check and locators code complete.
+    Added Selenide simple project(New->Java->Selenide Tests App).
     ]]>
   </change-notes>
 
@@ -29,6 +30,7 @@
       <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.unknown.seleniumplugin.linemaker.SeleniumFieldsLineMakerProvider"/>
       <completion.contributor language="JAVA" implementationClass="com.unknown.seleniumplugin.codecomplete.SelectorCompletionContributor"/>
       <projectTemplate projectType="Java" templatePath="resources/projectTemplates/Java/Simple Selenium App.zip" category="true"/>
+      <projectTemplate projectType="Java" templatePath="resources/projectTemplates/Java/Selenide Tests App.zip" category="true"/>
       <!-- Add your extensions here -->
   </extensions>
 
