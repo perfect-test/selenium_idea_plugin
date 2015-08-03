@@ -54,7 +54,11 @@ public class CssSelectorTests {
                 {"div[x=''] a[a=']"},
                 {"*:nth-child"},
                 {"#masthead-search-term["},
-                 {"#masthead-search button[q']"}
+                {"#masthead-search button[q']"},
+                {".payment-type-menu/"},
+                {".payment-type-menu /"},
+                {".payment-type-menu//"},
+                {"#//"}
         };
     }
 
@@ -88,7 +92,8 @@ public class CssSelectorTests {
                 {".b-grid__total .b-grid__cell_type_show .b-grid__cell-text:first-child"},
                 {".b-grid__total .b-grid__cell_type_show .b-grid__cell-text:nth-child(2)"},
                 {".b-grid__total .b-grid__cell_type_show .b-grid__cell-text:last-child"},
-                {"#masthead-search-term"}
+                {"#masthead-search-term"},
+
 
 
         };
@@ -104,7 +109,7 @@ public class CssSelectorTests {
     @Test(dataProvider = "goodSelectors")
     public void testGoodSelector(String selector) throws NotParsebleSelectorException {
         CheckResult checkResult = selectorChecker.checkSelectorValid(selector);
-        assertTrue(checkResult.isResultSuccess(), "No error for selector :'" + selector + "' ; error : " + checkResult.getMessage());
+        assertTrue(checkResult.isResultSuccess(), "Error for selector :'" + selector + "' ; error : " + checkResult.getMessage());
     }
 
 

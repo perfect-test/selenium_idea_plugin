@@ -137,7 +137,7 @@ public class CssSelectorChecker implements ISelectorChecker {
                 current = getCurrentChar(selector, position);
                 if (!isClosingBracesElement(current)) {
                     return getCheckResultWithError("There must be closing braces after " +
-                            NTH_CHILD_FUNCTION_NAME + " function index value, no spaces and another digits", position,
+                                    NTH_CHILD_FUNCTION_NAME + " function index value, no spaces and another digits", position,
                             "Remove spaces or unexpected symbols between child index and closing braces.");
                 }
                 try {
@@ -201,6 +201,8 @@ public class CssSelectorChecker implements ISelectorChecker {
             return getCheckResultWithError("There is a : after '#'", position, "Remove ':' after '#' symbol");
         } else if (isAnyElementDigit(current)) {
             return getCheckResultWithError("There is a * after '#'", position, "Remove '*' after '#' symbol");
+        } else if (isSlash(current)) {
+            return getCheckResultWithError("There is a \\ or / after '#'", position, "Remove '\' after '#' symbol");
         }
         parseSelectorStringPart(selector, position);
         if (position.value() == selector.length()) {
@@ -247,7 +249,7 @@ public class CssSelectorChecker implements ISelectorChecker {
                 } else if (isSingleQuotSymbol(current)) {
                     return getCheckResultWithError("There can't be an ' without '[' and attribute name", position,
                             "Remove '[' after identifier of add searching by attribute name of value");
-                } else if(isTagNameStartCharacter(current)){
+                } else if (isTagNameStartCharacter(current)) {
                     return parseStartTag(selector, position);
                 }
             } catch (EndOfSelector endOfSelector) {
@@ -277,6 +279,8 @@ public class CssSelectorChecker implements ISelectorChecker {
             return getCheckResultWithError("There is a # after '.'", position, "Remove '#' after '.' symbol");
         } else if (isFunctionStartElement(current)) {
             return getCheckResultWithError("There is a : after '.'", position, "Remove ':' after '.' symbol");
+        } else if (isSlash(current)) {
+            return getCheckResultWithError("There is a \\ or / after '.'", position, "Remove '\' after '.' symbol");
         }
         parseClassValue(selector, position);
         if (position.value() == selector.length()) {
@@ -289,6 +293,8 @@ public class CssSelectorChecker implements ISelectorChecker {
             return parseFunction(selector, position);
         } else if (isOpeningElement(next)) {
             return parseAttributes(selector, position);
+        } else if (isSlash(next)) {
+            return getCheckResultWithError("There is a \\ or / after class name", position, "Remove '\' after class name");
         } else if (isWhitespace(next)) {
             try {
                 skipWhitespaces(selector, position);
@@ -299,6 +305,8 @@ public class CssSelectorChecker implements ISelectorChecker {
                     return parseAttributes(selector, position);
                 } else if (isIdStartCharacter(current)) {
                     return parseId(selector, position);
+                }  else if (isSlash(current)) {
+                    return getCheckResultWithError("There is a \\ or / after class name", position, "Remove '\' after class name");
                 }
                 if (isClosingElement(current)) {
                     return getCheckResultWithError("There can't be an ']' without '[", position,
@@ -636,6 +644,10 @@ public class CssSelectorChecker implements ISelectorChecker {
 
     private static boolean isWhitespace(char ch) {
         return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
+    }
+
+    private static boolean isSlash(char ch) {
+        return ch == '\\' || ch == '/';
     }
 
     private String parseSelectorStringPart(String selector, Position position) {

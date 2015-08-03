@@ -61,7 +61,10 @@ public class SeleniumSelectorAnnotator implements Annotator {
                             selectorValueElement.getTextRange().getEndOffset());
                     holder.createWarningAnnotation(range, "Check of dynamic locator's not supported");
                 } else {
-                    SelectorMethodValue findMethod = SelectorMethodValue.CSS;
+                    SelectorMethodValue findMethod = getFindMethodFromExpressionText(callExpression.getText());
+                    if(findMethod == null) {
+                        findMethod = SelectorMethodValue.CSS;
+                    }
                     if (selectorValueElement != null) {
                         setSelectorChecker(findMethod);
                         if (selectorChecker != null && isMethodCheckEnabled(findMethod, properties)) {
