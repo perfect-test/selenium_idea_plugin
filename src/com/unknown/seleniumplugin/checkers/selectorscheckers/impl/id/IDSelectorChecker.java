@@ -70,7 +70,7 @@ public class IDSelectorChecker implements ISelectorChecker {
     }
 
     private boolean isIdNamePart(char ch) {
-        return Character.isJavaIdentifierPart(ch);
+        return Character.isJavaIdentifierPart(ch) || ch == '-' || ch == '_';
     }
 
 
