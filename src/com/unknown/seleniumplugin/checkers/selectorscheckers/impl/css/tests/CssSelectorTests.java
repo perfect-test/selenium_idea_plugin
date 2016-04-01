@@ -93,6 +93,7 @@ public class CssSelectorTests {
                 {".b-grid__total .b-grid__cell_type_show .b-grid__cell-text:nth-child(2)"},
                 {".b-grid__total .b-grid__cell_type_show .b-grid__cell-text:last-child"},
                 {"#masthead-search-term"},
+                {"a[href='/user/logout']"}
 
 
 

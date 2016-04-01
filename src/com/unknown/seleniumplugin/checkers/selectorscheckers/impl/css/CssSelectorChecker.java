@@ -777,7 +777,7 @@ public class CssSelectorChecker implements ISelectorChecker {
     }
 
     private static boolean isAttributeValuePart(char ch) {
-        return isTagNamePart(ch) || isWhitespace(ch) || ch == '-';
+        return isTagNamePart(ch) || isWhitespace(ch) || ch == '-' || ch == '/' || ch == '\\';
     }
 
     private static boolean isOpeningBracesElement(char ch) {
